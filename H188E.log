@@ -1,0 +1,1572 @@
+-----------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/teresarokos/Desktop/GOV 1005/GOV1005-Final_Project/H188E.log
+  log type:  text
+ opened on:  16 Oct 2018, 14:41:19
+
+. clear;
+
+. * INPUT ALL VARIABLES;
+. infix
+>   long   DUID 1-5
+>   int    PID 6-8
+>   str    DUPERSID 9-16
+>   str    EVNTIDX 17-28
+>   byte   EVENTRN 29-29
+>   str    ERHEVIDX 30-41
+>   str    FFEEIDX 42-53
+>   byte   PANEL 54-55
+>   byte   MPCDATA 56-56
+>   int    ERDATEYR 57-60
+>   byte   ERDATEMM 61-62
+>   byte   VSTCTGRY 63-64
+>   byte   VSTRELCN 65-66
+>   byte   LABTEST 67-68
+>   byte   SONOGRAM 69-70
+>   byte   XRAYS 71-72
+>   byte   MAMMOG 73-74
+>   byte   MRI 75-76
+>   byte   EKG 77-78
+>   byte   EEG 79-80
+>   byte   RCVVAC 81-82
+>   byte   ANESTH 83-84
+>   byte   THRTSWAB 85-86
+>   byte   OTHSVCE 87-88
+>   byte   SURGPROC 89-90
+>   byte   MEDPRESC 91-92
+>   str    ERCCC1X 93-95
+>   str    ERCCC2X 96-98
+>   str    ERCCC3X 99-101
+>   str    ERCCC4X 102-104
+>   byte   FFERTYPE 105-106
+>   byte   FFBEF16 107-108
+>   double ERXP16X 109-117
+>   double ERTC16X 118-126
+>   double ERFSF16X 127-134
+>   double ERFMR16X 135-142
+>   double ERFMD16X 143-150
+>   double ERFPV16X 151-159
+>   double ERFVA16X 160-167
+>   double ERFTR16X 168-174
+>   double ERFOF16X 175-181
+>   double ERFSL16X 182-188
+>   double ERFWC16X 189-195
+>   double ERFOR16X 196-203
+>   double ERFOU16X 204-210
+>   double ERFOT16X 211-218
+>   double ERFXP16X 219-227
+>   double ERFTC16X 228-236
+>   double ERDSF16X 237-243
+>   double ERDMR16X 244-250
+>   double ERDMD16X 251-257
+>   double ERDPV16X 258-264
+>   double ERDVA16X 265-271
+>   double ERDTR16X 272-277
+>   double ERDOF16X 278-281
+>   double ERDSL16X 282-287
+>   double ERDWC16X 288-294
+>   double ERDOR16X 295-301
+>   double ERDOU16X 302-307
+>   double ERDOT16X 308-314
+>   double ERDXP16X 315-321
+>   double ERDTC16X 322-329
+>   byte   IMPFLAG 330-330
+>   double PERWT16F 331-342
+>   int    VARSTR 343-346
+>   byte   VARPSU 347-347
+> using H188E.dat;
+(6,832 observations read)
+
+. *DEFINE VARIABLE LABELS;
+. label variable DUID "DWELLING UNIT ID";
+
+. label variable PID "PERSON NUMBER";
+
+. label variable DUPERSID "PERSON ID (DUID + PID)";
+
+. label variable EVNTIDX "EVENT ID";
+
+. label variable EVENTRN "EVENT ROUND NUMBER";
+
+. label variable ERHEVIDX "EVENT ID FOR CORRESPONDING HOSPITAL STAY";
+
+. label variable FFEEIDX "FLAT FEE ID";
+
+. label variable PANEL "PANEL NUMBER";
+
+. label variable MPCDATA "MPC DATA FLAG";
+
+. label variable ERDATEYR "EVENT DATE - YEAR";
+
+. label variable ERDATEMM "EVENT DATE - MONTH";
+
+. label variable VSTCTGRY "BEST CATEGORY FOR CARE P RECV ON VST DT";
+
+. label variable VSTRELCN "THIS VST RELATED TO SPEC CONDITION";
+
+. label variable LABTEST "THIS VISIT DID P HAVE LAB TESTS";
+
+. label variable SONOGRAM "THIS VISIT DID P HAVE SONOGRAM OR ULTRSD";
+
+. label variable XRAYS "THIS VISIT DID P HAVE X-RAYS";
+
+. label variable MAMMOG "THIS VISIT DID P HAVE A MAMMOGRAM";
+
+. label variable MRI "THIS VISIT DID P HAVE AN MRI/CATSCAN";
+
+. label variable EKG "THIS VISIT DID P HAVE AN EKG OR ECG";
+
+. label variable EEG "THIS VISIT DID P HAVE AN EEG";
+
+. label variable RCVVAC "THIS VISIT DID P RECEIVE A VACCINATION";
+
+. label variable ANESTH "THIS VISIT DID P RECEIVE ANESTHESIA";
+
+. label variable THRTSWAB "THIS VISIT DID P HAVE A THROAT SWAB";
+
+. label variable OTHSVCE "THIS VISIT DID P HAVE OTH DIAG TEST/EXAM";
+
+. label variable SURGPROC "WAS SURG PROC PERFORMED ON P THIS VISIT";
+
+. label variable MEDPRESC "ANY MEDICINE PRESCRIBED FOR P THIS VISIT";
+
+. label variable ERCCC1X "MODIFIED CLINICAL CLASSIFICATION CODE";
+
+. label variable ERCCC2X "MODIFIED CLINICAL CLASSIFICATION CODE";
+
+. label variable ERCCC3X "MODIFIED CLINICAL CLASSIFICATION CODE";
+
+. label variable ERCCC4X "MODIFIED CLINICAL CLASSIFICATION CODE";
+
+. label variable FFERTYPE "FLAT FEE BUNDLE";
+
+. label variable FFBEF16 "TOTAL # OF VISITS IN FF BEFORE 2016";
+
+. label variable ERXP16X "TOT EXP FOR EVENT (ERFXP16X + ERDXP16X)";
+
+. label variable ERTC16X "TOTAL CHG FOR EVENT (ERFTC16X+ERDTC16X)";
+
+. label variable ERFSF16X "FACILITY AMT PD, FAMILY (IMPUTED)";
+
+. label variable ERFMR16X "FACILITY AMT PD, MEDICARE (IMPUTED)";
+
+. label variable ERFMD16X "FACILITY AMT PD, MEDICAID (IMPUTED)";
+
+. label variable ERFPV16X "FACILITY AMT PD, PRIV INSUR (IMPUTED)";
+
+. label variable ERFVA16X "FAC AMT PD,VETERANS/CHAMPVA(IMPUTED)";
+
+. label variable ERFTR16X "FACILITY AMT PD,TRICARE(IMPUTED)";
+
+. label variable ERFOF16X "FACILITY AMT PD, OTH FEDERAL (IMPUTED)";
+
+. label variable ERFSL16X "FACILITY AMT PD, STATE/LOC GOV (IMPUTED)";
+
+. label variable ERFWC16X "FACILITY AMT PD, WORKERS COMP (IMPUTED)";
+
+. label variable ERFOR16X "FACILITY AMT PD, OTH PRIV (IMPUTED)";
+
+. label variable ERFOU16X "FACILITY AMT PD, OTH PUB (IMPUTED)";
+
+. label variable ERFOT16X "FACILITY AMT PD, OTH INSUR (IMPUTED)";
+
+. label variable ERFXP16X "FACILITY SUM PAYMENTS ERFSF16X-ERFOT16X";
+
+. label variable ERFTC16X "TOTAL FACILITY CHARGE (IMPUTED)";
+
+. label variable ERDSF16X "DOCTOR AMOUNT PAID, FAMILY (IMPUTED)";
+
+. label variable ERDMR16X "DOCTOR AMOUNT PD, MEDICARE (IMPUTED)";
+
+. label variable ERDMD16X "DOCTOR AMOUNT PAID, MEDICAID (IMPUTED)";
+
+. label variable ERDPV16X "DOCTOR AMT PD, PRIV INSUR (IMPUTED)";
+
+. label variable ERDVA16X "DR AMT PD,VETERANS/CHAMPVA(IMPUTED)";
+
+. label variable ERDTR16X "DOCTOR AMT PD,TRICARE(IMPUTED)";
+
+. label variable ERDOF16X "DOCTOR AMT PAID, OTH FEDERAL (IMPUTED)";
+
+. label variable ERDSL16X "DOCTOR AMT PD, STATE/LOC GOV (IMPUTED)";
+
+. label variable ERDWC16X "DOCTOR AMOUNT PD, WORKERS COMP (IMPUTED)";
+
+. label variable ERDOR16X "DOCTOR AMT PD, OTH PRIVATE (IMPUTED)";
+
+. label variable ERDOU16X "DOCTOR AMT PD, OTH PUB (IMPUTED)";
+
+. label variable ERDOT16X "DOCTOR AMT PD, OTH INSUR (IMPUTED)";
+
+. label variable ERDXP16X "DOCTOR SUM PAYMENTS ERDSF16X - ERDOT16X";
+
+. label variable ERDTC16X "TOTAL DOCTOR CHARGE (IMPUTED)";
+
+. label variable IMPFLAG "IMPUTATION STATUS";
+
+. label variable PERWT16F "EXPENDITURE FILE PERSON WEIGHT, 2016";
+
+. label variable VARSTR "VARIANCE ESTIMATION STRATUM, 2016";
+
+. label variable VARPSU "VARIANCE ESTIMATION PSU, 2016";
+
+. *DEFINE VALUE LABELS FOR REPORTS;
+. label define H188E0001X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0002X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0003X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0004X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED" ;
+
+. label define H188E0005X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          2016 "2016" ;
+
+. label define H188E0006X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0007X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0008X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0009X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0010X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0011X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0012X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0013X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0014X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0015X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0016X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0017X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0018X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0019X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0020X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0021X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0022X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0023X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0024X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0025X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0026X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0027X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0028X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0029X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0030X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0031X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0032X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0033X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0034X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0035X
+>          -1 "-1 INAPPLICABLE"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0" ;
+
+. label define H188E0036X
+>          1 "ROUND 1"
+>          2 "ROUND 2"
+>          3 "ROUND 3"
+>          4 "ROUND 4"
+>          5 "ROUND 5" ;
+
+. label define H188E0037X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          0 "0"
+>          2 "1 - 2" ;
+
+. label define H188E0038X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 FLAT FEE STEM"
+>          2 "2 FLAT FEE LEAF" ;
+
+. label define H188E0039X
+>          0 "0 NOT ELIGIBLE FOR IMPUTATION"
+>          1 "1 COMPLETE HC DATA"
+>          2 "2 COMPLETE MPC DATA"
+>          3 "3 FULLY IMPUTED"
+>          4 "4 PARTIALLY IMPUTED"
+>          5 "5 CAPITATION IMPUTATION" ;
+
+. label define H188E0040X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0041X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0042X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO" ;
+
+. label define H188E0043X
+>          1 "1 HAS MPC DATA"
+>          2 "2 NO MPC DATA" ;
+
+. label define H188E0044X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0045X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0046X
+>          20 "PANEL 20"
+>          21 "PANEL 21" ;
+
+. label define H188E0047X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0048X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0049X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0050X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. label define H188E0051X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 DIAGNOSIS OR TREATMENT"
+>          2 "2 EMERGENCY (E.G., ACCIDENT OR INJURY)"
+>          3 "3 PSYCHOTHERAPY/MENTAL HEALTH COUNSELING"
+>          4 "4 FOLLOW-UP OR POST-OPERATIVE VISIT"
+>          5 "5 IMMUNIZATIONS OR SHOTS"
+>          6 "6 PREGNANCY-RELATED (INC PRENATAL/ DELV)"
+>          91 "91 OTHER" ;
+
+. label define H188E0052X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO" ;
+
+. label define H188E0053X
+>          -1 "-1 INAPPLICABLE"
+>          -7 "-7 REFUSED"
+>          -8 "-8 DK"
+>          -9 "-9 NOT ASCERTAINED"
+>          1 "1 YES"
+>          2 "2 NO"
+>          95 "95 NO SERVICES RECEIVED" ;
+
+. * ASSOCIATE VARIABLES WITH VALUE LABEL DEFINITIONS;
+. label value ANESTH H188E0001X;
+
+. label value EEG H188E0002X;
+
+. label value EKG H188E0003X;
+
+. label value ERDATEMM H188E0004X;
+
+. label value ERDATEYR H188E0005X;
+
+. label value ERDMD16X H188E0006X;
+
+. label value ERDMR16X H188E0007X;
+
+. label value ERDOF16X H188E0008X;
+
+. label value ERDOR16X H188E0009X;
+
+. label value ERDOT16X H188E0010X;
+
+. label value ERDOU16X H188E0011X;
+
+. label value ERDPV16X H188E0012X;
+
+. label value ERDSF16X H188E0013X;
+
+. label value ERDSL16X H188E0014X;
+
+. label value ERDTC16X H188E0015X;
+
+. label value ERDTR16X H188E0016X;
+
+. label value ERDVA16X H188E0017X;
+
+. label value ERDWC16X H188E0018X;
+
+. label value ERDXP16X H188E0019X;
+
+. label value ERFMD16X H188E0020X;
+
+. label value ERFMR16X H188E0021X;
+
+. label value ERFOF16X H188E0022X;
+
+. label value ERFOR16X H188E0023X;
+
+. label value ERFOT16X H188E0024X;
+
+. label value ERFOU16X H188E0025X;
+
+. label value ERFPV16X H188E0026X;
+
+. label value ERFSF16X H188E0027X;
+
+. label value ERFSL16X H188E0028X;
+
+. label value ERFTC16X H188E0029X;
+
+. label value ERFTR16X H188E0030X;
+
+. label value ERFVA16X H188E0031X;
+
+. label value ERFWC16X H188E0032X;
+
+. label value ERFXP16X H188E0033X;
+
+. label value ERTC16X H188E0034X;
+
+. label value ERXP16X H188E0035X;
+
+. label value EVENTRN H188E0036X;
+
+. label value FFBEF16 H188E0037X;
+
+. label value FFERTYPE H188E0038X;
+
+. label value IMPFLAG H188E0039X;
+
+. label value LABTEST H188E0040X;
+
+. label value MAMMOG H188E0041X;
+
+. label value MEDPRESC H188E0042X;
+
+. label value MPCDATA H188E0043X;
+
+. label value MRI H188E0044X;
+
+. label value OTHSVCE H188E0045X;
+
+. label value PANEL H188E0046X;
+
+. label value RCVVAC H188E0047X;
+
+. label value SONOGRAM H188E0048X;
+
+. label value SURGPROC H188E0049X;
+
+. label value THRTSWAB H188E0050X;
+
+. label value VSTCTGRY H188E0051X;
+
+. label value VSTRELCN H188E0052X;
+
+. label value XRAYS H188E0053X;
+
+. *DISPLAY A DESCRIPTION OF STATA FILE;
+. describe;
+
+Contains data
+  obs:         6,832                          
+ vars:            66                          
+ size:     2,302,384                          
+-----------------------------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+-----------------------------------------------------------------------------------------------------
+DUID            long    %12.0g                DWELLING UNIT ID
+PID             int     %8.0g                 PERSON NUMBER
+DUPERSID        str8    %9s                   PERSON ID (DUID + PID)
+EVNTIDX         str12   %12s                  EVENT ID
+EVENTRN         byte    %8.0g      H188E0036X
+                                              EVENT ROUND NUMBER
+ERHEVIDX        str12   %12s                  EVENT ID FOR CORRESPONDING HOSPITAL STAY
+FFEEIDX         str12   %12s                  FLAT FEE ID
+PANEL           byte    %8.0g      H188E0046X
+                                              PANEL NUMBER
+MPCDATA         byte    %14.0g     H188E0043X
+                                              MPC DATA FLAG
+ERDATEYR        int     %18.0g     H188E0005X
+                                              EVENT DATE - YEAR
+ERDATEMM        byte    %18.0g     H188E0004X
+                                              EVENT DATE - MONTH
+VSTCTGRY        byte    %40.0g     H188E0051X
+                                              BEST CATEGORY FOR CARE P RECV ON VST DT
+VSTRELCN        byte    %18.0g     H188E0052X
+                                              THIS VST RELATED TO SPEC CONDITION
+LABTEST         byte    %23.0g     H188E0040X
+                                              THIS VISIT DID P HAVE LAB TESTS
+SONOGRAM        byte    %23.0g     H188E0048X
+                                              THIS VISIT DID P HAVE SONOGRAM OR ULTRSD
+XRAYS           byte    %23.0g     H188E0053X
+                                              THIS VISIT DID P HAVE X-RAYS
+MAMMOG          byte    %23.0g     H188E0041X
+                                              THIS VISIT DID P HAVE A MAMMOGRAM
+MRI             byte    %23.0g     H188E0044X
+                                              THIS VISIT DID P HAVE AN MRI/CATSCAN
+EKG             byte    %23.0g     H188E0003X
+                                              THIS VISIT DID P HAVE AN EKG OR ECG
+EEG             byte    %23.0g     H188E0002X
+                                              THIS VISIT DID P HAVE AN EEG
+RCVVAC          byte    %23.0g     H188E0047X
+                                              THIS VISIT DID P RECEIVE A VACCINATION
+ANESTH          byte    %23.0g     H188E0001X
+                                              THIS VISIT DID P RECEIVE ANESTHESIA
+THRTSWAB        byte    %23.0g     H188E0050X
+                                              THIS VISIT DID P HAVE A THROAT SWAB
+OTHSVCE         byte    %23.0g     H188E0045X
+                                              THIS VISIT DID P HAVE OTH DIAG TEST/EXAM
+SURGPROC        byte    %23.0g     H188E0049X
+                                              WAS SURG PROC PERFORMED ON P THIS VISIT
+MEDPRESC        byte    %18.0g     H188E0042X
+                                              ANY MEDICINE PRESCRIBED FOR P THIS VISIT
+ERCCC1X         str3    %9s                   MODIFIED CLINICAL CLASSIFICATION CODE
+ERCCC2X         str3    %9s                   MODIFIED CLINICAL CLASSIFICATION CODE
+ERCCC3X         str3    %9s                   MODIFIED CLINICAL CLASSIFICATION CODE
+ERCCC4X         str3    %9s                   MODIFIED CLINICAL CLASSIFICATION CODE
+FFERTYPE        byte    %18.0g     H188E0038X
+                                              FLAT FEE BUNDLE
+FFBEF16         byte    %18.0g     H188E0037X
+                                              TOTAL # OF VISITS IN FF BEFORE 2016
+ERXP16X         double  %18.0g     H188E0035X
+                                              TOT EXP FOR EVENT (ERFXP16X + ERDXP16X)
+ERTC16X         double  %18.0g     H188E0034X
+                                              TOTAL CHG FOR EVENT (ERFTC16X+ERDTC16X)
+ERFSF16X        double  %18.0g     H188E0027X
+                                              FACILITY AMT PD, FAMILY (IMPUTED)
+ERFMR16X        double  %18.0g     H188E0021X
+                                              FACILITY AMT PD, MEDICARE (IMPUTED)
+ERFMD16X        double  %18.0g     H188E0020X
+                                              FACILITY AMT PD, MEDICAID (IMPUTED)
+ERFPV16X        double  %18.0g     H188E0026X
+                                              FACILITY AMT PD, PRIV INSUR (IMPUTED)
+ERFVA16X        double  %18.0g     H188E0031X
+                                              FAC AMT PD,VETERANS/CHAMPVA(IMPUTED)
+ERFTR16X        double  %18.0g     H188E0030X
+                                              FACILITY AMT PD,TRICARE(IMPUTED)
+ERFOF16X        double  %18.0g     H188E0022X
+                                              FACILITY AMT PD, OTH FEDERAL (IMPUTED)
+ERFSL16X        double  %18.0g     H188E0028X
+                                              FACILITY AMT PD, STATE/LOC GOV (IMPUTED)
+ERFWC16X        double  %18.0g     H188E0032X
+                                              FACILITY AMT PD, WORKERS COMP (IMPUTED)
+ERFOR16X        double  %18.0g     H188E0023X
+                                              FACILITY AMT PD, OTH PRIV (IMPUTED)
+ERFOU16X        double  %18.0g     H188E0025X
+                                              FACILITY AMT PD, OTH PUB (IMPUTED)
+ERFOT16X        double  %18.0g     H188E0024X
+                                              FACILITY AMT PD, OTH INSUR (IMPUTED)
+ERFXP16X        double  %18.0g     H188E0033X
+                                              FACILITY SUM PAYMENTS ERFSF16X-ERFOT16X
+ERFTC16X        double  %18.0g     H188E0029X
+                                              TOTAL FACILITY CHARGE (IMPUTED)
+ERDSF16X        double  %18.0g     H188E0013X
+                                              DOCTOR AMOUNT PAID, FAMILY (IMPUTED)
+ERDMR16X        double  %18.0g     H188E0007X
+                                              DOCTOR AMOUNT PD, MEDICARE (IMPUTED)
+ERDMD16X        double  %18.0g     H188E0006X
+                                              DOCTOR AMOUNT PAID, MEDICAID (IMPUTED)
+ERDPV16X        double  %18.0g     H188E0012X
+                                              DOCTOR AMT PD, PRIV INSUR (IMPUTED)
+ERDVA16X        double  %18.0g     H188E0017X
+                                              DR AMT PD,VETERANS/CHAMPVA(IMPUTED)
+ERDTR16X        double  %18.0g     H188E0016X
+                                              DOCTOR AMT PD,TRICARE(IMPUTED)
+ERDOF16X        double  %18.0g     H188E0008X
+                                              DOCTOR AMT PAID, OTH FEDERAL (IMPUTED)
+ERDSL16X        double  %18.0g     H188E0014X
+                                              DOCTOR AMT PD, STATE/LOC GOV (IMPUTED)
+ERDWC16X        double  %18.0g     H188E0018X
+                                              DOCTOR AMOUNT PD, WORKERS COMP (IMPUTED)
+ERDOR16X        double  %18.0g     H188E0009X
+                                              DOCTOR AMT PD, OTH PRIVATE (IMPUTED)
+ERDOU16X        double  %18.0g     H188E0011X
+                                              DOCTOR AMT PD, OTH PUB (IMPUTED)
+ERDOT16X        double  %18.0g     H188E0010X
+                                              DOCTOR AMT PD, OTH INSUR (IMPUTED)
+ERDXP16X        double  %18.0g     H188E0019X
+                                              DOCTOR SUM PAYMENTS ERDSF16X - ERDOT16X
+ERDTC16X        double  %18.0g     H188E0015X
+                                              TOTAL DOCTOR CHARGE (IMPUTED)
+IMPFLAG         byte    %29.0g     H188E0039X
+                                              IMPUTATION STATUS
+PERWT16F        double  %10.0g                EXPENDITURE FILE PERSON WEIGHT, 2016
+VARSTR          int     %8.0g                 VARIANCE ESTIMATION STRATUM, 2016
+VARPSU          byte    %8.0g                 VARIANCE ESTIMATION PSU, 2016
+-----------------------------------------------------------------------------------------------------
+Sorted by: 
+     Note: Dataset has changed since last saved.
+
+. *LIST FIRST 20 OBSERVATIONS IN THE FILE;
+. list in 1/20;
+
+     +---------------------------------------------------------------------------------------------+
+  1. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10001  | 103  | 10001103  | 100011030071  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        7  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                     1 YES    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                   1 YES |     2 NO |     2 NO |     093 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            864.38  |      2680  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                25  |        0  |        0  |      799  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |      824  |     2329  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |                 0  |    40.38  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |              40.38   |        351   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      13263.221      |        1021       |           1       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+  2. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10001  | 104  | 10001104  | 100011040141  |  ROUND 3  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |       10  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     | 95 NO SERVICES RECEIVED | 95 NO SERVICES RECEIVED |    1 YES |    1 YES |     091 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            1500.7  |      3229  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                25  |        0  |        0  |      799  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |      824  |     1314  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |                 0  |    676.7  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |              676.7   |       1915   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      11616.069      |        1021       |           1       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+  3. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10005  | 103  | 10005103  | 100051030011  |  ROUND 1  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        1  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                   1 YES |                    2 NO |     2 NO |     2 NO |     126 |     092 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            320.34  |       573  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |        0  |   320.34  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   320.34  |      573  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |                  0   |          0   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |          3 FULLY IMPUTED      |      5537.3839      |        1012       |           2       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+  4. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10008  | 103  | 10008103  | 100081030021  |  ROUND 1  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        2  |               1 DIAGNOSIS OR TREATMENT  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                     1 YES    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                    2 NO |     2 NO |     2 NO |     259 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            587.59  |   3449.59  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |    476.9  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |    476.9  |  2807.59  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |            110.69  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             110.69   |        642   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      14254.589      |        1142       |           1       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+  5. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10008  | 103  | 10008103  | 100081030031  |  ROUND 1  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        2  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                   1 YES |     2 NO |     2 NO |     259 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            252.36  |    1595.4  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |   156.01  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   156.01  |   1031.4  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  | 96.34999999999999  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |  96.34999999999999   |        564   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      14254.589      |        1142       |           1       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+  6. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10017  | 101  | 10017101  | 100171010011  |  ROUND 1  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        4  |               1 DIAGNOSIS OR TREATMENT  |     2 NO  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                     1 YES    |                     1 YES    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                    2 NO |     2 NO |    1 YES |      -1 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |           1160.73  |   12021.1  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |        0  |  10057.1  |  1160.73  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |            1160.73   |       1964   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      7923.8952      |        1003       |           2       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+  7. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10027  | 102  | 10027102  | 100271020161  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     |  2 NO MPC DATA |     2016 |        4  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                     1 YES    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                    2 NO |     2 NO |     2 NO |     051 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            632.59  |      4672  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |      504  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |   128.59  |        0  |        0  |   632.59  |     4672  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |                  0   |          0   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |          3 FULLY IMPUTED      |      20992.317      |        1084       |           1       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+  8. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10029  | 101  | 10029101  | 100291010041  |  ROUND 1  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        2  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     | 95 NO SERVICES RECEIVED | 95 NO SERVICES RECEIVED |     2 NO |    1 YES |     205 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            262.49  |    959.87  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |            147.86  |        0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   147.86  |   597.87  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |   114.63  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             114.63   |        362   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      8772.6418      |        1124       |           3       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+  9. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10029  | 101  | 10029101  | 100291010051  |  ROUND 1  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        1  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                     1 YES    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                    2 NO |     2 NO |     2 NO |     238 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            423.51  |   1485.97  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |   308.88  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   308.88  |  1123.97  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |   114.63  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             114.63   |        362   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      8772.6418      |        1124       |           3       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 10. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10029  | 101  | 10029101  | 100291010251  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        4  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                     1 YES    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                    2 NO |     2 NO |    1 YES |     205 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            221.15  |   1059.81  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |    28.22  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |    28.22  |   368.81  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |   185.92  |              7.01  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             192.93   |        691   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      8772.6418      |        1124       |           3       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 11. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10029  | 101  | 10029101  | 100291010261  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        4  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     | 95 NO SERVICES RECEIVED | 95 NO SERVICES RECEIVED |     2 NO |    1 YES |     244 |     159 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            570.24  |   2111.77  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |   340.98  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   340.98  |  1387.77  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |   229.26  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             229.26   |        724   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      8772.6418      |        1124       |           3       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 12. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10029  | 102  | 10029102  | 100291020031  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     |  2 NO MPC DATA |     2016 |        7  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                   1 YES |                    2 NO |     2 NO |    1 YES |     055 |     106 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -9  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            372.16  |   4298.31  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |    67.95  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |    67.95  |  2103.31  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |            304.21  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             304.21   |       2195   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |          3 FULLY IMPUTED      |              0      |        1124       |           3       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 13. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10029  | 102  | 10029102  | 100291020101  |  ROUND 3  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     |  2 NO MPC DATA |     2016 |        9  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                     1 YES    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                    2 NO |     2 NO |     2 NO |     251 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            221.04  |       675  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |   221.04  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   221.04  |      675  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |                  0   |          0   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |          3 FULLY IMPUTED      |              0      |        1124       |           3       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 14. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10034  | 102  | 10034102  | 100341020131  |  ROUND 3  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |       11  |               1 DIAGNOSIS OR TREATMENT  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |   95 NO SERVICES RECEIVED    |   95 NO SERVICES RECEIVED    |    95 NO SERVICES RECEIVED    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     | 95 NO SERVICES RECEIVED | 95 NO SERVICES RECEIVED |     2 NO |    1 YES |     095 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |          14460.13  |  27498.85  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |        0  | 14389.25  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  | 14389.25  | 27074.85  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |                 0  |    70.88  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |              70.88   |        424   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |          3 FULLY IMPUTED      |      2588.5717      |        1144       |           2       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 15. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10037  | 101  | 10037101  | 100371010441  |  ROUND 3  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |       12  |               1 DIAGNOSIS OR TREATMENT  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                   1 YES |     2 NO |     2 NO |     133 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |           1042.18  |   12792.5  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |   890.85  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   890.85  |  11093.5  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |            151.33  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             151.33   |       1699   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |          3 FULLY IMPUTED      |      5240.7301      |        1007       |           2       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 16. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10053  | 103  | 10053103  | 100531030091  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        2  | 2 EMERGENCY (E.G., ACCIDENT OR INJURY)  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                    2 NO |     2 NO |     2 NO |     236 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |               126  |       147  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |        0  |      126  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |      126  |      147  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |        0  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |                  0   |          0   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      34887.567      |        1022       |           1       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 17. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10054  | 101  | 10054101  | 100541010101  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        8  |               1 DIAGNOSIS OR TREATMENT  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                   1 YES |     2 NO |    1 YES |     136 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            172.03  |      2982  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     | 99.84999999999999  |    25.49  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   125.34  |     2560  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |    46.69  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |              46.69   |        422   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      8848.2706      |        1025       |           2       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 18. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10054  | 102  | 10054102  | 100541020031  |  ROUND 1  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        1  |               1 DIAGNOSIS OR TREATMENT  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                     1 YES    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                   1 YES |     2 NO |     2 NO |     122 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            743.95  |      7538  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |   409.55  |    69.08  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   478.63  |     5631  |    10.64  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |   150.56  |            104.12  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             265.32   |       1907   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |          3 FULLY IMPUTED      |      8099.6094      |        1025       |           2       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 19. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10054  | 102  | 10054102  | 100541020141  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        7  |               1 DIAGNOSIS OR TREATMENT  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                     1 YES    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                   1 YES |     2 NO |    1 YES |     127 |     651 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  | 558.5599999999999  |      4547  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |   426.94  |       .9  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   427.84  |     3608  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |   130.72  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |         0   |         0   |         0   |             130.72   |        939   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      8099.6094      |        1025       |           2       |
+     +---------------------------------------------------------------------------------------------+
+
+     +---------------------------------------------------------------------------------------------+
+ 20. |  DUID  | PID  | DUPERSID  |      EVNTIDX  |  EVENTRN  |  ERHEVIDX  |  FFEEIDX  |     PANEL  |
+     | 10054  | 102  | 10054102  | 100541020151  |  ROUND 2  |        -1  |       -1  |  PANEL 21  |
+     |---------------------------+-----------------------------------------------------------------|
+     |        MPCDATA | ERDATEYR | ERDATEMM  |                               VSTCTGRY  | VSTRELCN  |
+     | 1 HAS MPC DATA |     2016 |        8  |               1 DIAGNOSIS OR TREATMENT  |    1 YES  |
+     |---------------------------------------------------------------------------------------------|
+     |                   LABTEST    |                  SONOGRAM    |                      XRAYS    |
+     |                      2 NO    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                    MAMMOG    |                       MRI    |                        EKG    |
+     |                      2 NO    |                      2 NO    |                      1 YES    |
+     |------------------------------+------------------------------+-------------------------------|
+     |                       EEG    |                    RCVVAC    |                     ANESTH    |
+     |                      2 NO    |                      2 NO    |                       2 NO    |
+     |---------------------------------------------------------------------------------------------|
+     |                THRTSWAB |                 OTHSVCE | SURGPROC | MEDPRESC | ERCCC1X | ERCCC2X |
+     |                    2 NO |                   1 YES |     2 NO |    1 YES |     143 |      -1 |
+     |---------------------------------------------------------------------------------------------|
+     | ERCCC3X  | ERCCC4X  |        FFERTYPE  |         FFBEF16  |           ERXP16X  |   ERTC16X  |
+     |      -1  |      -1  | -1 INAPPLICABLE  | -1 INAPPLICABLE  |            620.42  |    4956.5  |
+     |--------------------------------------------------------------------------------+------------|
+     |          ERFSF16X  | ERFMR16X  | ERFMD16X  | ERFPV16X  | ERFVA16X  | ERFTR16X  |  ERFOF16X  |
+     |                 0  |   350.14  |       .9  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERFSL16X | ERFWC16X | ERFOR16X  | ERFOU16X  | ERFOT16X  | ERFXP16X  | ERFTC16X  | ERDSF16X  |
+     |        0 |        0 |        0  |        0  |        0  |   351.04  |     3051  |        0  |
+     |---------------------------------------------------------------------------------------------|
+     | ERDMR16X  |          ERDMD16X  | ERDPV16X  | ERDVA16X  | ERDTR16X  | ERDOF16X  |  ERDSL16X  |
+     |    268.4  |                 0  |        0  |        0  |        0  |        0  |         0  |
+     |---------------------------------------------------------------------------------------------|
+     |  ERDWC16X   |  ERDOR16X   |  ERDOU16X   |  ERDOT16X   |           ERDXP16X   |   ERDTC16X   |
+     |         0   |       .98   |         0   |         0   |             269.38   |     1905.5   |
+     |---------------------------------------------------------------------------------------------|
+     |                  IMPFLAG      |       PERWT16F      |      VARSTR       |      VARPSU       |
+     |      2 COMPLETE MPC DATA      |      8099.6094      |        1025       |           2       |
+     +---------------------------------------------------------------------------------------------+
+
+. save H188E, replace;
+(note: file H188E.dta not found)
+file H188E.dta saved
+
+. #delimit cr
+delimiter now cr
+. 
+. * data file is stored in H188E.dta
+. * log  file is stored in H188E.log
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/teresarokos/Desktop/GOV 1005/GOV1005-Final_Project/H188E.log
+  log type:  text
+ closed on:  16 Oct 2018, 14:41:19
+-----------------------------------------------------------------------------------------------------
