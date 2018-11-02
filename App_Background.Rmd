@@ -1,0 +1,105 @@
+---
+title: "App Background Work"
+author: "Teresa Rokos"
+date: "11/1/2018"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readstata13)
+library(knitr)
+library(janitor)
+
+load("emergency_visits.Rda")
+
+glimpse(emergency_visits_data)
+
+emergency_visits_data %>% 
+  count(best_category_for_care_p_recv_on_vst_dt)
+
+emergency_visits_data %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+    geom_histogram() + 
+    scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10')
+
+emergency_visits_data %>% 
+  filter(best_category_for_care_p_recv_on_vst_dt == "1 DIAGNOSIS OR TREATMENT") %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+  geom_histogram() + 
+  scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10')
+
+emergency_visits_data %>% 
+  filter(best_category_for_care_p_recv_on_vst_dt == "2 EMERGENCY (E.G., ACCIDENT OR INJURY)") %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+  geom_histogram() + 
+  scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10')
+
+emergency_visits_data %>% 
+  filter(best_category_for_care_p_recv_on_vst_dt == "6 PREGNANCY-RELATED (INC PRENATAL/ DELV)") %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+  geom_histogram() + 
+  scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10')
+
+# Select what sort of services were received on visit
+emergency_visits_data %>% 
+  filter(this_visit_did_p_have_lab_tests == "1 YES") %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+  geom_histogram() + 
+  scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10') +
+  scale_y_continuous(limits = c(0,500)) +
+  expand_limits(x = c(0, 150000))
+  
+
+emergency_visits_data %>% 
+  filter(this_visit_did_p_have_sonogram_or_ultrsd == "1 YES") %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+  geom_histogram() + 
+  scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10') +
+  scale_y_continuous(limits = c(0,500)) +
+  expand_limits(x = c(0, 150000))
+
+emergency_visits_data %>% 
+  filter(this_visit_did_p_have_sonogram_or_ultrsd == "1 YES") %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+  geom_histogram() + 
+  scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10') +
+  scale_y_continuous(limits = c(0,500)) +
+  expand_limits(x = c(0, 150000))
+
+emergency_visits_data %>% 
+  filter(this_visit_did_p_have_x_rays == "1 YES") %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+  geom_histogram() + 
+  scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10') +
+  scale_y_continuous(limits = c(0,500)) +
+  expand_limits(x = c(0, 150000))
+
+
+
+```
+
