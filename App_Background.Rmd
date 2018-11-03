@@ -11,12 +11,12 @@ library(readstata13)
 library(knitr)
 library(janitor)
 
-load("emergency_visits.Rda")
+emergency_visits_data <- read_rds("app_data")
 
 glimpse(emergency_visits_data)
 
 emergency_visits_data %>% 
-  count(best_category_for_care_p_recv_on_vst_dt)
+  filter(tot_exp_for_event_erfxp16x_erdxp16x == 0)
 
 emergency_visits_data %>% 
   ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 

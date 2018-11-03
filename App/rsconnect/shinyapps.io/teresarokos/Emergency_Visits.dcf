@@ -1,0 +1,12 @@
+name: Emergency_Visits
+title: App
+username:
+account: teresarokos
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 548585
+bundleId: 1680337
+url: https://teresarokos.shinyapps.io/emergency_visits/
+when: 1541283038.23313
+asMultiple: FALSE
+asStatic: FALSE
