@@ -92,7 +92,7 @@ names(emergency_visits_data) <- c("DWELLING UNIT ID",
 
 emergency_visits_data <- clean_names(emergency_visits_data, case = c("snake"))
 
-emergency_visits_data %>% write_rds("app_data")
+emergency_visits_data %>% write_rds("App/app_data")
 ```
 
 The data contains 6,832 observations (emergency room visits) and 66 variables. Some summary statistics of key variables are listed below.

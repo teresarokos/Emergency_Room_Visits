@@ -5,8 +5,8 @@ account: teresarokos
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 548585
-bundleId: 1680337
+bundleId: 1681282
 url: https://teresarokos.shinyapps.io/emergency_visits/
-when: 1541283038.23313
+when: 1541356839.00468
 asMultiple: FALSE
 asStatic: FALSE
