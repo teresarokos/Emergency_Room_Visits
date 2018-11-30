@@ -99,7 +99,208 @@ emergency_visits_data %>%
   scale_y_continuous(limits = c(0,500)) +
   expand_limits(x = c(0, 150000))
 
+emergency_visits_data %>% 
+  count(person_id_duid_pid) %>% 
+  arrange(desc(n))
 
+emergency_visits_data %>% 
+  count(modified_clinical_classification_code) %>% 
+  arrange(desc(n)) %>% 
+  print(n = 175)
+
+
+emergency_visits_data %>% 
+  ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+  geom_histogram() + 
+  scale_x_continuous(name = "Total Expenditure for Event", 
+                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     labels = c(100, 500, 1000, 5000, 10000, 50000, 100000),
+                     trans = 'log10') +
+  scale_y_continuous(limits = c(0,500)) +
+  expand_limits(x = c(0, 150000))
+
+# Extracting clinical classification codes and corresponding conditions off MEPS website
+# Copy and pasted text off of MEPS website into .txt file
+# Need to separate out relevant codes
+classification_codes <- read_delim("classification_codes", delim = "\t ", col_names = FALSE)
+
+classification_codes <- classification_codes %>% 
+  filter(str_detect(X1, "[abcdefghijklmnopqrstuvwxyz]"), !str_detect(X1, "Return to Top")) %>% 
+  separate(X1, into = c("modified_clinical_classification_code", "condition"), sep = " ", extra = "merge") %>% 
+  mutate(modified_clinical_classification_code = parse_integer(modified_clinical_classification_code),
+         condition = as_factor(condition))
+
+classification_codes_2 <- classification_codes %>% 
+  mutate(modified_clinical_classification_code_2 = modified_clinical_classification_code,
+         condition_2 = condition) %>% 
+  select(modified_clinical_classification_code_2, condition_2)
+
+classification_codes_3 <- classification_codes %>% 
+  mutate(modified_clinical_classification_code_3 = modified_clinical_classification_code,
+         condition_3 = condition) %>% 
+  select(modified_clinical_classification_code_3, condition_3)
+
+classification_codes_4 <- classification_codes %>% 
+  mutate(modified_clinical_classification_code_4 = modified_clinical_classification_code,
+         condition_4 = condition) %>% 
+  select(modified_clinical_classification_code_4, condition_4)
+
+# Joining classification codes to emergency visits data
+emergency_visits_data <- emergency_visits_data %>% 
+  mutate(modified_clinical_classification_code = parse_integer(modified_clinical_classification_code),
+         modified_clinical_classification_code_2 = parse_integer(modified_clinical_classification_code_2),
+         modified_clinical_classification_code_3 = parse_integer(modified_clinical_classification_code_3),
+         modified_clinical_classification_code_4 = parse_integer(modified_clinical_classification_code_4)) %>%
+  left_join(classification_codes, by = "modified_clinical_classification_code") %>% 
+  left_join(classification_codes_2, by = "modified_clinical_classification_code_2") %>%
+  left_join(classification_codes_3, by = "modified_clinical_classification_code_3") %>%
+  left_join(classification_codes_4, by = "modified_clinical_classification_code_4")
+
+emergency_visits_data %>% 
+  write_rds("App/app_data")
+
+emergency_visits_data %>% 
+  count(modified_clinical_classification_code, condition) %>% 
+  arrange(desc(n))
+
+emergency_visits_data %>% 
+  filter(condition == "Other injuries and conditions due to external causes") %>% 
+ggplot(aes(x = tot_exp_for_event_erfxp16x_erdxp16x)) + 
+      geom_histogram(bins = 30) + 
+      scale_x_continuous(name = "Total Expenditure for Event", 
+                         breaks = c(100, 1000, 10000, 100000),
+                         labels = c('$100', '$1,000', '$10,000', '$100,000'),
+                         trans = 'log10') +
+      scale_y_continuous(name = "Number of Visits", limits = c(0,100)) +
+      expand_limits(x = c(0.1, 150000)) +
+      ggtitle("Distribution of expenditure by condition")
+
+emergency_visits_data %>% 
+  filter(this_visit_did_p_have_lab_tests == "1 YES") %>% 
+  select(this_visit_did_p_have_lab_tests, condition, tot_exp_for_event_erfxp16x_erdxp16x) %>% 
+  filter(condition == "Bacterial infection; unspecified site") %>% 
+  mutate(order = rank(tot_exp_for_event_erfxp16x_erdxp16x)) %>% 
+  ggplot(aes(x = order, y = tot_exp_for_event_erfxp16x_erdxp16x)) +
+  geom_point()
+
+# table providing the number of times each service was provided
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_lab_tests) %>%  
+  filter(this_visit_did_p_have_lab_tests == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_lab_tests, this_visit_did_p_have_lab_tests = n) %>% 
+  select(service_provided, this_visit_did_p_have_lab_tests)
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_sonogram_or_ultrsd) %>%  
+  filter(this_visit_did_p_have_sonogram_or_ultrsd == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_sonogram_or_ultrsd, this_visit_did_p_have_sonogram_or_ultrsd = n) %>% 
+  select(service_provided, this_visit_did_p_have_sonogram_or_ultrsd) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_x_rays) %>%  
+  filter(this_visit_did_p_have_x_rays == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_x_rays, this_visit_did_p_have_x_rays = n) %>% 
+  select(service_provided, this_visit_did_p_have_x_rays) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_a_mammogram) %>%  
+  filter(this_visit_did_p_have_a_mammogram == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_a_mammogram, this_visit_did_p_have_a_mammogram = n) %>% 
+  select(service_provided, this_visit_did_p_have_a_mammogram) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_an_mri_catscan) %>%  
+  filter(this_visit_did_p_have_an_mri_catscan == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_an_mri_catscan, this_visit_did_p_have_an_mri_catscan = n) %>% 
+  select(service_provided, this_visit_did_p_have_an_mri_catscan) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_an_ekg_or_ecg) %>%  
+  filter(this_visit_did_p_have_an_ekg_or_ecg == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_an_ekg_or_ecg, this_visit_did_p_have_an_ekg_or_ecg = n) %>% 
+  select(service_provided, this_visit_did_p_have_an_ekg_or_ecg) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_an_eeg) %>%  
+  filter(this_visit_did_p_have_an_eeg == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_an_eeg, this_visit_did_p_have_an_eeg = n) %>% 
+  select(service_provided, this_visit_did_p_have_an_eeg) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_receive_a_vaccination) %>%  
+  filter(this_visit_did_p_receive_a_vaccination == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_receive_a_vaccination, this_visit_did_p_receive_a_vaccination = n) %>% 
+  select(service_provided, this_visit_did_p_receive_a_vaccination) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_receive_anesthesia) %>%  
+  filter(this_visit_did_p_receive_anesthesia == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_receive_anesthesia, this_visit_did_p_receive_anesthesia = n) %>% 
+  select(service_provided, this_visit_did_p_receive_anesthesia) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_a_throat_swab) %>%  
+  filter(this_visit_did_p_have_a_throat_swab == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_a_throat_swab, this_visit_did_p_have_a_throat_swab = n) %>% 
+  select(service_provided, this_visit_did_p_have_a_throat_swab) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(this_visit_did_p_have_oth_diag_test_exam) %>%  
+  filter(this_visit_did_p_have_oth_diag_test_exam == "1 YES") %>% 
+  mutate(service_provided = this_visit_did_p_have_oth_diag_test_exam, this_visit_did_p_have_oth_diag_test_exam = n) %>% 
+  select(service_provided, this_visit_did_p_have_oth_diag_test_exam) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(was_surg_proc_performed_on_p_this_visit) %>%  
+  filter(was_surg_proc_performed_on_p_this_visit == "1 YES") %>% 
+  mutate(service_provided = was_surg_proc_performed_on_p_this_visit, was_surg_proc_performed_on_p_this_visit = n) %>% 
+  select(service_provided, was_surg_proc_performed_on_p_this_visit) %>% 
+  left_join(aggregate_services, by = "service_provided")
+
+aggregate_services <- emergency_visits_data %>% 
+  count(any_medicine_prescribed_for_p_this_visit) %>%  
+  filter(any_medicine_prescribed_for_p_this_visit == "1 YES") %>% 
+  mutate(service_provided = any_medicine_prescribed_for_p_this_visit, any_medicine_prescribed_for_p_this_visit = n) %>% 
+  select(service_provided, any_medicine_prescribed_for_p_this_visit) %>% 
+  left_join(aggregate_services, by = "service_provided") %>% 
+  transmute(lab_tests = this_visit_did_p_have_lab_tests, 
+            sonogram_ultrasound = this_visit_did_p_have_sonogram_or_ultrsd,
+            x_rays = this_visit_did_p_have_x_rays,
+            mammogram = this_visit_did_p_have_a_mammogram,
+            mri_catscan = this_visit_did_p_have_an_mri_catscan,
+            ekg_ecg = this_visit_did_p_have_an_ekg_or_ecg,
+            eeg = this_visit_did_p_have_an_eeg,
+            vaccination = this_visit_did_p_receive_a_vaccination,
+            anesthesia = this_visit_did_p_receive_anesthesia,
+            throat_swab = this_visit_did_p_have_a_throat_swab,
+            other_diagnostic_test_exam = this_visit_did_p_have_oth_diag_test_exam,
+            surgery = was_surg_proc_performed_on_p_this_visit,
+            medicine_prescribed = any_medicine_prescribed_for_p_this_visit) %>% 
+  gather(service, n_visits)
+
+aggregate_services %>% 
+  write_rds("App/aggregate_services")
+
+aggregate_services %>% 
+  ggplot(aes(x = fct_reorder(service, n_visits), y = n_visits)) +
+  geom_col() +
+  coord_flip() +
+  scale_x_discrete(name = "", labels = c("Mammogram", "Vaccination", "EEG", "Anesthesia", "Throat Swab", 
+                                         "Surgery", "Sonogram or Ultrasound",
+                                         "Other Diagnostic Test or Exam", "MRI or CTscan", "EKG or ECG", 
+                                         "X-Rays", "Medicine Prescribed", "Lab Tests")) +
+  ylab("Number of visits that provided service") +
+  ggtitle("Most Popular Emergency Room Services")
 
 ```
 
