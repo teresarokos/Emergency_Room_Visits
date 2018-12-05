@@ -166,14 +166,52 @@ emergency_visits_data %>%
   gather(key = "service", value = "provided", -`Total Expenditure`, -person_id_duid_pid, 
          -condition, -condition_2, -condition_3, -condition_4) %>% 
   arrange(person_id_duid_pid) %>%
-  filter(provided == "1 YES")
+  filter(provided == "1 YES") %>% 
   ggplot(aes(x = service, y = `Total Expenditure`, color = service)) +
   geom_boxplot(show.legend = FALSE) +
   scale_y_continuous(name = "Total Expenditure on Event", trans = "log10", 
                      breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
                      labels = c("$100", "$500", "$1,000", "$5,000", "$10,000", "$50,000", "$100,000")) +
   xlab("") +
+  scale_color_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", "Medicine Prescribed" = "#00ACFC", 
+                       "MRI or CT Scan" = "#FF65AC", "EKG or ECG" = "#E18A00", 
+                       "Other Diagnostic Test/Exam" = "#00BE70", "Sonogram or Ultrasound" = "#8B93FF",
+                       "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
+                       "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
   coord_flip()
+
+# Figuring out which colors are the default colors used by ggplot
+library(scales)
+  show_col(hue_pal()(13))
   
+```
+
+```{r patients page}
+emergency_visits_data %>% 
+  count(dwelling_unit_id) %>% 
+  arrange(desc(n))
+
+emergency_visits_data %>% 
+  count(person_id_duid_pid) %>% 
+  arrange(desc(n))
+
+emergency_visits_data %>% 
+  count(event_id_for_corresponding_hospital_stay) %>% 
+  arrange(desc(n))
+
+emergency_visits_data %>% 
+  group_by(dwelling_unit_id) %>% 
+  mutate(household_visits = n(), total_16_cost = sum(`Total Expenditure`)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = household_visits, y = total_16_cost)) +
+  geom_jitter()
+
+emergency_visits_data %>% 
+  filter(event_date_month != -9) %>% 
+  group_by(event_date_year) %>% 
+  mutate(average_expenditure = sum(`Total Expenditure`)/n()) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = event_date_month, y = average_expenditure)) +
+  geom_jitter()
 ```
 

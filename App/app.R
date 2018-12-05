@@ -53,7 +53,8 @@ ui <- navbarPage("Exploring the MEPS Emergency Room Visits Data",
                                                         "Joint disorders and dislocations; trauma-related",
                                                         "Chronic obstructive pulmonary disease and bronchiectasis",
                                                         "Anxiety disorder"))
-                              ),
+                                ),
+                              
                               mainPanel(
                                 h1(uiOutput(outputId = "n_visits")),
                                 uiOutput(outputId = "n_visits_condition"),
@@ -63,35 +64,44 @@ ui <- navbarPage("Exploring the MEPS Emergency Room Visits Data",
                                 hr(),
                                 h2(p("Expenditures")),
                                 plotOutput(outputId = "agg_expenditure_plot"),
-                                hr()
-                              )
+                                hr())
                             )
                           )),
                  
                  tabPanel("Patients",
                           fluidPage(
-                            titlePanel("Patients"),
+                            titlePanel("Emergency Room Patients"),
                             sidebarLayout(
-                              sidebarPanel(),
-                              mainPanel()
-                            )
-                          )),
-                 
-                 tabPanel("Page 3",
-                          fluidPage(
-                            titlePanel("Page 3"),
-                            sidebarLayout(
-                              sidebarPanel(),
-                              mainPanel()
-                            )
-                          )),
-                 
-                 tabPanel("Page 4",
-                          fluidPage(
-                            titlePanel("Page 4"),
-                            sidebarLayout(
-                              sidebarPanel(),
-                              mainPanel()
+                              sidebarPanel(
+                                checkboxGroupInput("care_category2", 
+                                                   "Select categories of care:",
+                                                   choices = c("Diagnosis or treatment" = "1 DIAGNOSIS OR TREATMENT",
+                                                               "Emergency (e.g. accident or injury)" = "2 EMERGENCY (E.G., ACCIDENT OR INJURY)",
+                                                               "Phychotherapy/mental health counseling" = "3 PSYCHOTHERAPY/MENTAL HEALTH COUNSELING",
+                                                               "Follow-up or post-operative visit" = "4 FOLLOW-UP OR POST-OPERATIVE VISIT",
+                                                               "Immunizations or shots" = "5 IMMUNIZATIONS OR SHOTS",
+                                                               "Pregnancy-related" = "6 PREGNANCY-RELATED (INC PRENATAL/ DELV)",
+                                                               "Other" = "91 OTHER",
+                                                               "Not ascertained" = "-9 NOT ASCERTAINED"),
+                                                   selected = "2 EMERGENCY (E.G., ACCIDENT OR INJURY)"),
+                                
+                                selectInput("condition2", 
+                                            "Select a condition:",
+                                            choices = c("All",
+                                                        "Other injuries and conditions due to external causes", 
+                                                        "Spondylosis; intervertebral disc disorders; other back problems",
+                                                        "Essential hypertension",
+                                                        "Other upper respiratory infections",
+                                                        "Other upper respiratory disease",
+                                                        "Asthma",
+                                                        "Intestinal infection",
+                                                        "Joint disorders and dislocations; trauma-related",
+                                                        "Chronic obstructive pulmonary disease and bronchiectasis",
+                                                        "Anxiety disorder"))
+                              ),
+                              mainPanel(h1(uiOutput(outputId = "n_patients")),
+                                        uiOutput(outputId = "n_households"),
+                                        hr())
                             )
                           ))
                  )
@@ -252,14 +262,21 @@ server <- function(input, output) {
       bind_rows(aggregate_services)
     }
     
-    aggregate_services %>% 
+   aggregate_services %>% 
         ggplot(aes(x = fct_reorder(service, n_visits), y = n_visits, fill = service)) +
           geom_col(show.legend = FALSE) +
           coord_flip() +
           scale_x_discrete(name = "") +
+          scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", "Medicine Prescribed" = "#00ACFC", 
+                                    "MRI or CT Scan" = "#FF65AC", "EKG or ECG" = "#E18A00", 
+                                    "Other Diagnostic Test/Exam" = "#00BE70", "Sonogram or Ultrasound" = "#8B93FF",
+                                    "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
+                                    "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
           ylab("Number of visits that provided service")
+   
   })
   
+  # A box plot that shows the distribution of expenditures for visits with the selected characteristics
   output$agg_expenditure_plot <- renderPlot({
     app_data <- switch(input$condition,
                        "All" = app_data %>% 
@@ -286,7 +303,6 @@ server <- function(input, output) {
                          filter(`Category of Care` %in% c(input$care_category), condition == "Anxiety disorder"))
     
       app_data %>%
-        filter(`Category of Care` %in% c(input$care_category)) %>% 
         select(person_id_duid_pid, `Lab Tests`, `Sonogram or Ultrasound`, `X-Rays`, Mammogram, 
                `MRI or CT Scan`, `EKG or ECG`, EEG, Vaccination, Anesthesia, `Throat Swab`, 
                `Other Diagnostic Test/Exam`, Surgery, `Medicine Prescribed`, `Total Expenditure`, 
@@ -299,7 +315,42 @@ server <- function(input, output) {
         geom_boxplot(show.legend = FALSE) +
         ylab("Total expenditure on events that included service ($)") +
         xlab("") +
+        scale_color_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", "Medicine Prescribed" = "#00ACFC", 
+                                      "MRI or CT Scan" = "#FF65AC", "EKG or ECG" = "#E18A00", 
+                                      "Other Diagnostic Test/Exam" = "#00BE70", "Sonogram or Ultrasound" = "#8B93FF",
+                                      "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
+                                      "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
         coord_flip()
+  })
+  
+  output$n_patients <- renderText({
+    app_data <- switch(input$condition2,
+                       "All" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2)),
+                       "Other injuries and conditions due to external causes" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Other injuries and conditions due to external causes"), 
+                       "Spondylosis; intervertebral disc disorders; other back problems" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Spondylosis; intervertebral disc disorders; other back problems"),
+                       "Essential hypertension" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Essential hypertension"),
+                       "Other upper respiratory infections" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Other upper respiratory infections"),
+                       "Other upper respiratory disease" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Other upper respiratory disease"),
+                       "Asthma" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Asthma"),
+                       "Intestinal infection" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Intestinal infection"),
+                       "Joint disorders and dislocations; trauma-related" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Joint disorders and dislocations; trauma-related"),
+                       "Chronic obstructive pulmonary disease and bronchiectasis" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Chronic obstructive pulmonary disease and bronchiectasis"),
+                       "Anxiety disorder" = app_data %>% 
+                         filter(`Category of Care` %in% c(input$care_category2), condition == "Anxiety disorder"))
+    
+    n_patients <- app_data %>%
+      count(person_id_duid_pid)
+    paste(nrow(n_patients), "total patients")
   })
 }
 
