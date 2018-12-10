@@ -11,6 +11,7 @@ library(readstata13)
 library(knitr)
 library(janitor)
 library(dplyr)
+library(scales)
 
 emergency_visits_data <- read_rds("app_data")
 
@@ -57,161 +58,149 @@ emergency_visits_data <- emergency_visits_data %>%
   left_join(classification_codes_3, by = "modified_clinical_classification_code_3") %>%
   left_join(classification_codes_4, by = "modified_clinical_classification_code_4")
 
-# Cleaning up some of the variable names surrounding services
+# Cleaning up some of the variable names surrounding services so that easier to use in app 
 emergency_visits_data <- emergency_visits_data %>% 
   rename(`Category of Care` = best_category_for_care_p_recv_on_vst_dt, 
             `Specific Condition` = this_vst_related_to_spec_condition,
             `Lab Tests` = this_visit_did_p_have_lab_tests,
             `Sonogram or Ultrasound` = this_visit_did_p_have_sonogram_or_ultrsd,
             `X-Rays` = this_visit_did_p_have_x_rays,
-            `Mammogram` = this_visit_did_p_have_a_mammogram,
+            Mammogram = this_visit_did_p_have_a_mammogram,
             `MRI or CT Scan` = this_visit_did_p_have_an_mri_catscan,
             `EKG or ECG` = this_visit_did_p_have_an_ekg_or_ecg,
-            `EEG` = this_visit_did_p_have_an_eeg,
-            `Vaccination` = this_visit_did_p_receive_a_vaccination,
-            `Anesthesia` = this_visit_did_p_receive_anesthesia,
+            EEG = this_visit_did_p_have_an_eeg,
+            Vaccination = this_visit_did_p_receive_a_vaccination,
+            Anesthesia = this_visit_did_p_receive_anesthesia,
             `Throat Swab` = this_visit_did_p_have_a_throat_swab,
             `Other Diagnostic Test/Exam` = this_visit_did_p_have_oth_diag_test_exam,
-            `Surgery` =  was_surg_proc_performed_on_p_this_visit,
+            Surgery =  was_surg_proc_performed_on_p_this_visit,
             `Medicine Prescribed` = any_medicine_prescribed_for_p_this_visit,
             `Total Expenditure` = tot_exp_for_event_erfxp16x_erdxp16x,
-            `Total Charge` = total_chg_for_event_erftc16x_erdtc16x) %>% 
-  mutate(`Total Expenditure` = `Total Expenditure` + 1)
+            `Total Charge` = total_chg_for_event_erftc16x_erdtc16x)
+
+# Converting service variables to logicals and gathering into a "services" column that includes each service that was provided during a visit. Also adding a column for the number of services provided at each visit
+emergency_visits_data <- emergency_visits_data %>% 
+  mutate(`Lab Tests` = case_when(`Lab Tests` == "1 YES" ~ TRUE),
+         `Lab Tests` = parse_logical(`Lab Tests`),
+         `Sonogram or Ultrasound` = case_when(`Sonogram or Ultrasound` == "1 YES" ~ TRUE),
+         `Sonogram or Ultrasound` = parse_logical(`Sonogram or Ultrasound`),
+         `X-Rays` = case_when(`X-Rays` == "1 YES" ~ TRUE),
+         `X-Rays` = parse_logical(`X-Rays`),
+         Mammogram = case_when(Mammogram == "1 YES" ~ TRUE),
+         Mammogram = parse_logical(Mammogram),
+         `MRI or CT Scan` = case_when(`MRI or CT Scan` == "1 YES" ~ TRUE),
+         `MRI or CT Scan` = parse_logical(`MRI or CT Scan`),
+         `EKG or ECG` = case_when(`EKG or ECG` == "1 YES" ~ TRUE),
+         `EKG or ECG` = parse_logical(`EKG or ECG`),
+         EEG = case_when(EEG == "1 YES" ~ TRUE),
+         EEG = parse_logical(EEG),
+         Vaccination = case_when(Vaccination == "1 YES" ~ TRUE),
+         Vaccination = parse_logical(Vaccination),
+         Anesthesia = case_when(Anesthesia == "1 YES" ~ TRUE),
+         Anesthesia = parse_logical(Anesthesia),
+         `Throat Swab` = case_when(`Throat Swab` == "1 YES" ~ TRUE),
+         `Throat Swab` = parse_logical(`Throat Swab`),
+         `Other Diagnostic Test/Exam` = case_when(`Other Diagnostic Test/Exam` == "1 YES" ~ TRUE),
+         `Other Diagnostic Test/Exam` = parse_logical(`Other Diagnostic Test/Exam`),
+         Surgery = case_when(Surgery == "1 YES" ~ TRUE),
+         Surgery = parse_logical(Surgery),
+         `Medicine Prescribed` = case_when(`Medicine Prescribed` == "1 YES" ~ TRUE),
+         `Medicine Prescribed` = parse_logical(`Medicine Prescribed`)) %>% 
+  gather(`Lab Tests`, `Sonogram or Ultrasound`, `X-Rays`, Mammogram, 
+         `MRI or CT Scan`, `EKG or ECG`, EEG, Vaccination, Anesthesia, `Throat Swab`, 
+         `Other Diagnostic Test/Exam`, Surgery, `Medicine Prescribed`, key = "service_received", 
+         value = "yes", na.rm = TRUE) %>% 
+  group_by(event_id) %>% 
+  mutate(n_services_visit = n()) %>% 
+  ungroup() %>% 
+  select(-person_number, -flat_fee_id, -mpc_data_flag, -flat_fee_bundle, 
+         -total_number_of_visits_in_ff_before_2016, -panel_number, -event_round_number)
 
 # Writing this file to my app folder
 emergency_visits_data %>% 
   write_rds("App/app_data")
-
-# table providing the number of times each service was provided
-aggregate_services <- emergency_visits_data %>% 
-  filter(`Lab Tests` == "1 YES") %>% 
-  summarize(service = "Lab Tests", n_visits = n())
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(`Sonogram or Ultrasound` == "1 YES") %>% 
-  summarize(service = "Sonogram or Ultrasound", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(`X-Rays` == "1 YES") %>% 
-  summarize(service = "X-Rays", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(Mammogram == "1 YES") %>% 
-  summarize(service = "Mammogram", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(`MRI or CT Scan` == "1 YES") %>% 
-  summarize(service = "MRI or CT Scan", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(`EKG or ECG` == "1 YES") %>% 
-  summarize(service = "EKG or ECG", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(`EEG` == "1 YES") %>% 
-  summarize(service = "EEG", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(Vaccination == "1 YES") %>% 
-  summarize(service = "Vaccination", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(Anesthesia == "1 YES") %>% 
-  summarize(service = "Anesthesia", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(`Throat Swab` == "1 YES") %>% 
-  summarize(service = "Throat Swab", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(`Other Diagnostic Test/Exam` == "1 YES") %>% 
-  summarize(service = "Other Diagnostic Test/Exam", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(Surgery == "1 YES") %>% 
-  summarize(service = "Surgery", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
-
-aggregate_services <- emergency_visits_data %>% 
-  filter(`Medicine Prescribed` == "1 YES") %>% 
-  summarize(service = "Medicine Prescribed", n_visits = n()) %>% 
-  bind_rows(aggregate_services)
 ```
 
-```{r}
-# Generating a bar plot that shows the most popular services provided
-aggregate_services %>% 
-  ggplot(aes(x = fct_reorder(service, n_visits), y = n_visits)) +
-  geom_col() +
+```{r services}
+# Background work for SERVICES PAGE
+# code to display total number of visits in the selected data
+emergency_visits_data %>% 
+  count(event_id) %>% 
+  nrow()
+
+# barplot providing the number of times each service was provided. In app, will be able to filter by condition.
+emergency_visits_data %>% 
+  filter(condition == "Asthma") %>% 
+  count(service_received) %>% 
+  ggplot(aes(x = fct_reorder(service_received, n), y = n, fill = service_received)) +
+  geom_col(show.legend = FALSE) +
   coord_flip() +
   scale_x_discrete(name = "") +
   ylab("Number of visits that provided service") +
-  ggtitle("Most Popular Emergency Room Services")
+  ggtitle("Most Popular Emergency Room Services") +
+  scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
+                                "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
+                                "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
+                                "Sonogram or Ultrasound" = "#8B93FF",
+                                "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
+                                "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD"))
+
+# Fun polar coordinate chart of most commmon services provided in conjunction with selected service
+with_service <- emergency_visits_data %>% 
+  filter(service_received == "Lab Tests") %>% 
+  select(event_id)
 
 emergency_visits_data %>% 
-  select(person_id_duid_pid, `Lab Tests`, `Sonogram or Ultrasound`, `X-Rays`, Mammogram, 
-         `MRI or CT Scan`, `EKG or ECG`, EEG, Vaccination, Anesthesia, `Throat Swab`, 
-         `Other Diagnostic Test/Exam`, Surgery, `Medicine Prescribed`, `Total Expenditure`, 
-         condition, condition_2, condition_3, condition_4, `Total Charge`) %>% 
-  gather(key = "service", value = "provided", -`Total Expenditure`, -person_id_duid_pid, 
-         -condition, -condition_2, -condition_3, -condition_4) %>% 
-  arrange(person_id_duid_pid) %>%
-  filter(provided == "1 YES") %>% 
-  ggplot(aes(x = service, y = `Total Expenditure`, color = service)) +
-  geom_boxplot(show.legend = FALSE) +
-  scale_y_continuous(name = "Total Expenditure on Event", trans = "log10", 
-                     breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000),
-                     labels = c("$100", "$500", "$1,000", "$5,000", "$10,000", "$50,000", "$100,000")) +
-  xlab("") +
-  scale_color_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", "Medicine Prescribed" = "#00ACFC", 
-                       "MRI or CT Scan" = "#FF65AC", "EKG or ECG" = "#E18A00", 
-                       "Other Diagnostic Test/Exam" = "#00BE70", "Sonogram or Ultrasound" = "#8B93FF",
-                       "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
-                       "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
-  coord_flip()
+  semi_join(with_service, by = "event_id") %>% 
+  filter(service_received != "Lab Tests") %>% 
+  ggplot(aes(x = service_received, fill = service_received)) +
+  geom_bar(show.legend = FALSE, width = 1) +
+  scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
+                                "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
+                                "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
+                                "Sonogram or Ultrasound" = "#8B93FF",
+                                "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
+                                "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
+  theme(aspect.ratio = 1) +
+  coord_polar()
+```
 
-# Figuring out which colors are the default colors used by ggplot
-library(scales)
-  show_col(hue_pal()(13))
-  
+```{r expenditures}
+emergency_visits_data %>% 
+  count(event_id_for_corresponding_hospital_stay)
+
+emergency_visits_data %>% 
+  mutate(`Total Expenditure` = `Total Expenditure` + 1) %>% 
+  ggplot(aes(x = `Total Expenditure`, fill = service_received)) +
+  geom_histogram() +
+  scale_x_continuous(name = "Total Expenditure", 
+                     breaks = c(100, 1000, 10000, 100000), 
+                     labels = c("$100", "$1,000", "$10,000", "$100,000"), 
+                     trans = "log10") +
+  ylab("Number of Visits") +
+  scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
+                                "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
+                                "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
+                                "Sonogram or Ultrasound" = "#8B93FF",
+                                "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
+                                "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD"))
+
 ```
 
 ```{r patients page}
-emergency_visits_data %>% 
-  count(dwelling_unit_id) %>% 
-  arrange(desc(n))
 
-emergency_visits_data %>% 
+
+person_visits <- emergency_visits_data %>% 
+  count(person_id_duid_pid, event_id) %>% 
+  arrange(desc(n)) %>% 
   count(person_id_duid_pid) %>% 
-  arrange(desc(n))
+  arrange(desc(nn))
 
 emergency_visits_data %>% 
-  count(event_id_for_corresponding_hospital_stay) %>% 
-  arrange(desc(n))
+  left_join(person_visits, by = "person_id_duid_pid") %>% 
+  select(person_id_duid_pid, event_id, condition, condition_2, condition_3, condition_4, service_received, nn) %>% 
+  arrange(desc(nn), event_id) %>% 
+  count(nn)
+```  
 
-emergency_visits_data %>% 
-  group_by(dwelling_unit_id) %>% 
-  mutate(household_visits = n(), total_16_cost = sum(`Total Expenditure`)) %>% 
-  ungroup() %>% 
-  ggplot(aes(x = household_visits, y = total_16_cost)) +
-  geom_jitter()
-
-emergency_visits_data %>% 
-  filter(event_date_month != -9) %>% 
-  group_by(event_date_year) %>% 
-  mutate(average_expenditure = sum(`Total Expenditure`)/n()) %>% 
-  ungroup() %>% 
-  ggplot(aes(x = event_date_month, y = average_expenditure)) +
-  geom_jitter()
-```
 
