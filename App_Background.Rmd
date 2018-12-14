@@ -163,6 +163,11 @@ emergency_visits_data %>%
                                 "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
   theme(aspect.ratio = 1) +
   coord_polar()
+
+emergency_visits_data %>% 
+  count(event_id, condition) %>% 
+  count(condition) %>% 
+  arrange(desc(nn))
 ```
 
 ```{r expenditures}

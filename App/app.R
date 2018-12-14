@@ -13,7 +13,7 @@ library(ggplot2)
 library(plotly)
 library(scales)
 
-# Loading emergency visits data
+# Loading emergency visits data created in the App_Background file
 app_data <- read_rds("app_data")
 
 # Define UI for application that draws a histogram
@@ -23,87 +23,131 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                           fluidPage(
                             titlePanel("About"),
                             fluidRow(
-                                  h3("What is the MEPS emergency room visits data?"),
-                                    p("The Medical Expenditure Panel Survey (MEPS) is a set of large-scale 
-                                    surveys of families and individuals, their medical providers, and 
-                                    employers across the United States. The 2016 Emergency Room (ER) visits data include
-                                    information on the health conditions requiring emergency
-                                    room care, medical services provided, any surgical procedures performed, 
-                                    prescribed medicines, and the physicians and surgeons providing emergency 
-                                    room care for any visit the surveyed person made during 2016 to a hospital emergency 
-                                    room. ER expenditures in MEPS are defined as the sum of payments for 
-                                    care received for each emergency room visit, including out-of-pocket 
-                                    payments and payments made by private insurance, Medicaid, Medicare and 
-                                    other sources."),
-                                    br(),
-                                    h3("What does this app let you do?"),
-                                    p("This app lets you explore what sort of services are provided by emergency
-                                    rooms, what kinds of expenditures emergency visits tend to require, and what
-                                    types of conditions, services, and expenditures are associated with
-                                    high-use patients.")
+                              column(12,
+                                     includeMarkdown("about_page.Rmd"))
                                 )
-                            )),
+                            )
+                          ),
                  
                  tabPanel("Services",
                           fluidPage(
-                            titlePanel("Emergency Room Services", windowTitle = "Services"),
-                            sidebarLayout(
-                              sidebarPanel( 
-                                p("To see which services are most often provided for a given medical condition,"),
-                                selectInput("condition", 
-                                            "Select a medical condition:",
-                                            choices = c("All",
-                                                        "Asthma",
-                                                        "Anxiety disorder",
-                                                        "Calculus of urinary tract",
-                                                        "Chronic obstructive pulmonary disease and bronchiectasis",
-                                                        "Essential hypertension",
-                                                        "Fracture of upper limb",
-                                                        "Headache; including migraine",
-                                                        "Intestinal infection",
-                                                        "Joint disorders and dislocations; trauma-related",
-                                                        "Open wounds of extremities",
-                                                        "Other connective tissue disease",
-                                                        "Other injuries and conditions due to external causes",
-                                                        "Other upper respiratory disease",
-                                                        "Other upper respiratory infections",
-                                                        "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)",
-                                                        "Spondylosis; intervertebral disc disorders; other back problems",
-                                                        "Urinary tract infections")),
-                                hr(),
-                                p("To see which services are most often provided in conjuction with a
-                                  particular service (given the condition selected above),"),
-                                radioButtons("service", 
-                                                   "Select a service (and scroll down):",
-                                                   choices = c("Anesthesia",
-                                                               "EEG",
-                                                               "EKG or ECG", 
-                                                               "Lab Tests",
-                                                               "Mammogram",
-                                                               "Medicine Prescribed",
-                                                               "MRI or CT Scan",
-                                                               "Other Diagnostic Test/Exam",
-                                                               "Sonogram or Ultrasound", 
-                                                               "Surgery",
-                                                               "Throat Swab",
-                                                               "Vaccination",
-                                                               "X-Rays"),
-                                                   selected = "Lab Tests")
-                                ),
-                              mainPanel(
-                                h1(uiOutput(outputId = "n_visits")),
-                                uiOutput(outputId = "n_visits_condition"),
-                                hr(),
-                                h2(p("Services")),
-                                plotOutput(outputId = "agg_services_plot"),
-                                hr(),
-                                h4(uiOutput(outputId = "selected_service")),
-                                uiOutput(outputId = "service_all_conditions"),
-                                uiOutput(outputId = "related_to_condition"),
-                                plotOutput(outputId = "conj_service_plot"),
-                                hr())
+                            titlePanel("Emergency Room Services"),
+                            fluidRow(
+                              column(12,
+                                     br(),
+                                     p("The MEPS collects information on whether or not patients (surveyed)
+                                       received any one of the following 13 services: anesthesia, EEGs, EKGs
+                                       or ECGs, lab tests, mammograms, MRI or CT scans, other diagnostic 
+                                       tests/exams, precription of medicine, sonograms or ultrasounds, 
+                                       surgery, throat swabs, vaccinations, and/or x-rays. Use this page to
+                                       explore which services tend to be provided for which conditions and 
+                                       which services tend to be provided in conjunction with one another."),
+                                     hr())
+                              ),
+                            
+                            fluidRow(
+                              column(12,
+                                     h2(p("Visits which provided services")),
+                                     p("The bar plot below shows how many visits provided a particular
+                                       service given the selected medical condition. Keep in mind that many
+                                       visits require multiple services."),
+                                     h1(uiOutput(outputId = "n_visits")),
+                                     uiOutput(outputId = "n_visits_condition"),
+                                     br(),
+                                     sidebarLayout(
+                                       sidebarPanel(
+                                         selectInput("condition", 
+                                                     "Select a medical condition:",
+                                                     choices = c("All",
+                                                                 "Asthma",
+                                                                 "Anxiety disorder",
+                                                                 "Calculus of urinary tract",
+                                                                 "Chronic obstructive pulmonary disease and bronchiectasis",
+                                                                 "Essential hypertension",
+                                                                 "Fracture of upper limb",
+                                                                 "Headache; including migraine",
+                                                                 "Intestinal infection",
+                                                                 "Joint disorders and dislocations; trauma-related",
+                                                                 "Open wounds of extremities",
+                                                                 "Other connective tissue disease",
+                                                                 "Other injuries and conditions due to external causes",
+                                                                 "Other upper respiratory disease",
+                                                                 "Other upper respiratory infections",
+                                                                 "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)",
+                                                                 "Spondylosis; intervertebral disc disorders; other back problems",
+                                                                 "Urinary tract infections")),
+                                         br(),
+                                         p("Note: the conditions you are allowed to select are only some of
+                                           the most common of the 153 conditions in the MEPS 2016 Emergency
+                                           Room Visits file."),
+                                         br()
+                                         ),
+                                       mainPanel(
+                                         plotOutput(outputId = "agg_services_plot")
+                                         )
+                                       ),
+                                     hr()
+                                     )
+                              ),
+                            fluidRow(
+                              column(12,
+                                     h2(p("Services provided in conjunction with one another")),
+                                     p("The plot below shows the number of visits that provide a particular
+                                       service in conjuction with the service selected and given the selected
+                                       medical condition."),
+                                     br(),
+                                     sidebarLayout(
+                                       sidebarPanel(
+                                         selectInput("condition2", 
+                                                     "Select a medical condition:",
+                                                     choices = c("All",
+                                                                 "Asthma",
+                                                                 "Anxiety disorder",
+                                                                 "Calculus of urinary tract",
+                                                                 "Chronic obstructive pulmonary disease and bronchiectasis",
+                                                                 "Essential hypertension",
+                                                                 "Fracture of upper limb",
+                                                                 "Headache; including migraine",
+                                                                 "Intestinal infection",
+                                                                 "Joint disorders and dislocations; trauma-related",
+                                                                 "Open wounds of extremities",
+                                                                 "Other connective tissue disease",
+                                                                 "Other injuries and conditions due to external causes",
+                                                                 "Other upper respiratory disease",
+                                                                 "Other upper respiratory infections",
+                                                                 "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)",
+                                                                 "Spondylosis; intervertebral disc disorders; other back problems",
+                                                                 "Urinary tract infections")),
+                                         br(),
+                                         radioButtons("service", 
+                                                      "Select a service (and scroll down):",
+                                                      choices = c("Anesthesia",
+                                                                  "EEG",
+                                                                  "EKG or ECG", 
+                                                                  "Lab Tests",
+                                                                  "Mammogram",
+                                                                  "Medicine Prescribed",
+                                                                  "MRI or CT Scan",
+                                                                  "Other Diagnostic Test/Exam",
+                                                                  "Sonogram or Ultrasound", 
+                                                                  "Surgery",
+                                                                  "Throat Swab",
+                                                                  "Vaccination",
+                                                                  "X-Rays"),
+                                                      selected = "Lab Tests")
+                                       ),
+                                       mainPanel(
+                                         h4(uiOutput(outputId = "selected_service")),
+                                         uiOutput(outputId = "service_all_conditions"),
+                                         uiOutput(outputId = "related_to_condition"),
+                                         plotOutput(outputId = "conj_service_plot"),
+                                         hr()
+                                         )
+                                       )
+                                     )
                             )
-                          )),
+                            )
+                          ),
                  
                  tabPanel("Expenditures",
                           fluidPage(
@@ -189,7 +233,7 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                                                "Not ascertained" = "-9 NOT ASCERTAINED"),
                                                    selected = "2 EMERGENCY (E.G., ACCIDENT OR INJURY)"),
                                 
-                                selectInput("condition2", 
+                                selectInput("condition", 
                                             "Select a condition:",
                                             choices = c("All",
                                                         "Other injuries and conditions due to external causes", 
@@ -280,7 +324,6 @@ server <- function(input, output) {
         coord_flip() +
         scale_x_discrete(name = "") +
         ylab("Number of visits that provided service") +
-        ggtitle("Most Popular Emergency Room Services") +
         scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
                                      "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
                                      "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
@@ -297,7 +340,7 @@ server <- function(input, output) {
   })
   
   output$service_all_conditions <- renderText({
-    if (input$condition == "All") {
+    if (input$condition2 == "All") {
       service_data <- app_data %>% 
         filter(service_received == input$service) %>% 
         count(event_id)
@@ -306,11 +349,11 @@ server <- function(input, output) {
   })
   
   output$related_to_condition <- renderText({
-    if (input$condition != "All") {
+    if (input$condition2 != "All") {
       condition_data <- app_data %>% 
-        filter(service_received == input$service, condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition) %>% 
+        filter(service_received == input$service, condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2) %>% 
         count(event_id)
-      paste("for visits related to ", str_to_lower(input$condition), "(", nrow(condition_data), 
+      paste("for visits related to ", str_to_lower(input$condition2), "(", nrow(condition_data), 
             "visits with", input$service, ")")
         }
   })
@@ -319,42 +362,42 @@ server <- function(input, output) {
   output$conj_service_plot <- renderPlot({
     
     # Filtering data by selected condition
-    services_data <- switch(input$condition,
+    services_data <- switch(input$condition2,
                             "All" = app_data,
                             "Asthma" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Anxiety disorder" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Calculus of urinary tract" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Chronic obstructive pulmonary disease and bronchiectasis" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Essential hypertension" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Fracture of upper limb" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Headache; including migraine" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Intestinal infection" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Joint disorders and dislocations; trauma-related" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Open wounds of extremities" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Other connective tissue disease" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Other injuries and conditions due to external causes" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Other upper respiratory disease" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Other upper respiratory infections" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Spondylosis; intervertebral disc disorders; other back problems" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition),
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2),
                             "Urinary tract infections" = app_data %>% 
-                              filter(condition == input$condition  | condition_2 == input$condition | condition_3 == input$condition | condition_4 == input$condition))
+                              filter(condition == input$condition2  | condition_2 == input$condition2 | condition_3 == input$condition2 | condition_4 == input$condition2))
     
     # filtering for events that had the selected service
     with_service <- services_data %>% 
