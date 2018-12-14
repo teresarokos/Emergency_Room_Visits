@@ -151,23 +151,24 @@ with_service <- emergency_visits_data %>%
   select(event_id)
 
 emergency_visits_data %>% 
-  semi_join(with_service, by = "event_id") %>% 
-  filter(service_received != "Lab Tests") %>% 
-  ggplot(aes(x = service_received, fill = service_received)) +
+  semi_join(with_service, by = "event_id") %>%
+  mutate(conj_service = case_when(n_services_visit != 1 ~ service_received,
+                                  n_services_visit == 1 ~ "No other services")) %>%
+  filter(conj_service != "Lab Tests") %>% 
+  ggplot(aes(x = conj_service, fill = conj_service)) +
   geom_bar(show.legend = FALSE, width = 1) +
   scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
                                 "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
                                 "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
                                 "Sonogram or Ultrasound" = "#8B93FF",
                                 "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
-                                "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
-  theme(aspect.ratio = 1) +
-  coord_polar()
-
-emergency_visits_data %>% 
-  count(event_id, condition) %>% 
-  count(condition) %>% 
-  arrange(desc(nn))
+                                "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD", 
+                               "No other services" = "grey")) +
+  coord_polar() + 
+  guides(fill = guide_legend("Additional Service")) +
+  scale_x_discrete(labels = c("", "", "", "","", "", "", "", "", "", "", "", "")) + 
+  theme(plot.background = element_rect(fill = "salmon"),
+        plot.margin = unit(c(2, 2, 1, 1), "cm"))
 ```
 
 ```{r expenditures}

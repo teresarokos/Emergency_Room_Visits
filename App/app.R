@@ -406,15 +406,21 @@ server <- function(input, output) {
     
     services_data %>% 
       semi_join(with_service, by = "event_id") %>% 
-      filter(service_received != input$service) %>% 
-      ggplot(aes(x = service_received, fill = service_received)) +
-      geom_bar(show.legend = FALSE, width = 1) +
+      mutate(conj_service = case_when(n_services_visit != 1 ~ service_received,
+                                      n_services_visit == 1 ~ "No other services")) %>% 
+      filter(conj_service != input$service) %>% 
+      count(conj_service) %>% 
+      ggplot(aes(x = fct_reorder(conj_service, -n), y = n, fill = fct_reorder(conj_service, -n))) +
+      geom_col(width = 1) +
       scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
                                    "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
                                    "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
                                    "Sonogram or Ultrasound" = "#8B93FF",
                                    "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
-                                   "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
+                                   "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD",
+                                   "No other services" = "grey")) +
+      labs(fill = "Additional Service") +
+      scale_x_discrete(labels = c("", "", "", "","", "", "", "", "", "", "", "", "")) + 
       theme(aspect.ratio = 1) +
       labs(x = NULL, y = NULL) +
       coord_polar()
