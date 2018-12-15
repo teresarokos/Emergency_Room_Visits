@@ -15,6 +15,7 @@ library(scales)
 
 # Loading emergency visits data created in the App_Background file
 app_data <- read_rds("app_data")
+expenditure_data <- read_rds("expenditure_data")
 
 # Define UI for application that draws a histogram
 ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
@@ -89,6 +90,7 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                      hr()
                                      )
                               ),
+                            
                             fluidRow(
                               column(12,
                                      h2(p("Services provided in conjunction with one another")),
@@ -120,7 +122,7 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                                                  "Urinary tract infections")),
                                          br(),
                                          radioButtons("service", 
-                                                      "Select a service (and scroll down):",
+                                                      "Select a service:",
                                                       choices = c("Anesthesia",
                                                                   "EEG",
                                                                   "EKG or ECG", 
@@ -140,8 +142,7 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                          h4(uiOutput(outputId = "selected_service")),
                                          uiOutput(outputId = "service_all_conditions"),
                                          uiOutput(outputId = "related_to_condition"),
-                                         plotOutput(outputId = "conj_service_plot"),
-                                         hr()
+                                         plotOutput(outputId = "conj_service_plot")
                                          )
                                        )
                                      )
@@ -152,68 +153,126 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                  tabPanel("Expenditures",
                           fluidPage(
                             titlePanel("Emergency Room Expenditures"),
-                            sidebarLayout(
-                              sidebarPanel(
-                                p("To see the distribution of expenditures for a given condition,"),
-                                selectInput("condition_exp", 
-                                            "Select a medical condition:",
-                                            choices = c("All",
-                                                        "Asthma",
-                                                        "Anxiety disorder",
-                                                        "Calculus of urinary tract",
-                                                        "Chronic obstructive pulmonary disease and bronchiectasis",
-                                                        "Essential hypertension",
-                                                        "Fracture of upper limb",
-                                                        "Headache; including migraine",
-                                                        "Intestinal infection",
-                                                        "Joint disorders and dislocations; trauma-related",
-                                                        "Open wounds of extremities",
-                                                        "Other connective tissue disease",
-                                                        "Other injuries and conditions due to external causes",
-                                                        "Other upper respiratory disease",
-                                                        "Other upper respiratory infections",
-                                                        "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)",
-                                                        "Spondylosis; intervertebral disc disorders; other back problems",
-                                                        "Urinary tract infections")),
-                                br(),
-                                p("To see the distribution of expenditures for a particular service(s),"),
-                                checkboxGroupInput("service_exp",
-                                                   "Select a service:",
-                                                   choices = c("Anesthesia",
-                                                               "EEG",
-                                                               "EKG or ECG", 
-                                                               "Lab Tests",
-                                                               "Mammogram",
-                                                               "Medicine Prescribed",
-                                                               "MRI or CT Scan",
-                                                               "Other Diagnostic Test/Exam",
-                                                               "Sonogram or Ultrasound", 
-                                                               "Surgery",
-                                                               "Throat Swab",
-                                                               "Vaccination",
-                                                               "X-Rays"),
-                                                   selected = c("Anesthesia",
-                                                                "EEG",
-                                                                "EKG or ECG", 
-                                                                "Lab Tests",
-                                                                "Mammogram",
-                                                                "Medicine Prescribed",
-                                                                "MRI or CT Scan",
-                                                                "Other Diagnostic Test/Exam",
-                                                                "Sonogram or Ultrasound", 
-                                                                "Surgery",
-                                                                "Throat Swab",
-                                                                "Vaccination",
-                                                                "X-Rays"))
-                              ),
+                            fluidRow(
+                              column(12,
+                                     br(),
+                                     p("The MEPS collects information on how much was charged for each 
+                                       patient visit and how much was spent on each patient visit (as
+                                       hospitals often charge much more than they actually receive in
+                                       reimbursement). This page lets you explore the distribution of 
+                                       expenditures for a given condition by the services provided."),
+                                     hr())
+                            ),
+                            
+                            fluidRow(
+                              column(12,
+                                     h2(p("Distribution of expenditures by payer")),
+                                     p("The bar plot below shows who paid for what proportion of each expenditure. You can look at
+                                       this data for a particular condition and particular price range."),
+                                     br(),
+                                     sidebarLayout(
+                                       sidebarPanel(
+                                         selectInput("condition_exp",
+                                                     "Select a medical condition:",
+                                                     choices = c("All",
+                                                                 "Asthma",
+                                                                 "Anxiety disorder",
+                                                                 "Calculus of urinary tract",
+                                                                 "Chronic obstructive pulmonary disease and bronchiectasis",
+                                                                 "Essential hypertension",
+                                                                 "Fracture of upper limb",
+                                                                 "Headache; including migraine",
+                                                                 "Intestinal infection",
+                                                                 "Joint disorders and dislocations; trauma-related",
+                                                                 "Open wounds of extremities",
+                                                                 "Other connective tissue disease",
+                                                                 "Other injuries and conditions due to external causes",
+                                                                 "Other upper respiratory disease",
+                                                                 "Other upper respiratory infections",
+                                                                 "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)",
+                                                                 "Spondylosis; intervertebral disc disorders; other back problems",
+                                                                 "Urinary tract infections")),
+                                         sliderInput("exp_range",
+                                                     "Select an expenditure range:",
+                                                     min = 0,
+                                                     max = 120000,
+                                                     value = c(0, 1000))
+                                       ),
+                                       mainPanel(
+                                         plotOutput(outputId = "payer_barplot")
+                                       )
+                                     ),
+                                     hr()
+                              )
+                            ),
+                            
+                            fluidRow(
+                              column(12,
+                                     h2(p("Distribution of expenditures by service")),
+                                     p("The histogram below shows the distribution of expenditures for the
+                                       selected condition and services. Note that the x-axis is on a
+                                       logarithmic scale."),
+                                     br(),
+                                     sidebarLayout(
+                                       sidebarPanel(
+                                         selectInput("condition_exp2",
+                                                     "Select a medical condition:",
+                                                     choices = c("All",
+                                                                 "Asthma",
+                                                                 "Anxiety disorder",
+                                                                 "Calculus of urinary tract",
+                                                                 "Chronic obstructive pulmonary disease and bronchiectasis",
+                                                                 "Essential hypertension",
+                                                                 "Fracture of upper limb",
+                                                                 "Headache; including migraine",
+                                                                 "Intestinal infection",
+                                                                 "Joint disorders and dislocations; trauma-related",
+                                                                 "Open wounds of extremities",
+                                                                 "Other connective tissue disease",
+                                                                 "Other injuries and conditions due to external causes",
+                                                                 "Other upper respiratory disease",
+                                                                 "Other upper respiratory infections",
+                                                                 "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)",
+                                                                 "Spondylosis; intervertebral disc disorders; other back problems",
+                                                                 "Urinary tract infections")),
+                                         br(),
+                                         checkboxGroupInput("service_exp",
+                                                            "Select a service:",
+                                                            choices = c("Anesthesia",
+                                                                        "EEG",
+                                                                        "EKG or ECG",
+                                                                        "Lab Tests",
+                                                                        "Mammogram",
+                                                                        "Medicine Prescribed",
+                                                                        "MRI or CT Scan",
+                                                                        "Other Diagnostic Test/Exam",
+                                                                        "Sonogram or Ultrasound",
+                                                                        "Surgery",
+                                                                        "Throat Swab",
+                                                                        "Vaccination",
+                                                                        "X-Rays"),
+                                                            selected = c("Anesthesia",
+                                                                         "EEG",
+                                                                         "EKG or ECG", 
+                                                                         "Lab Tests",
+                                                                         "Mammogram",
+                                                                         "Medicine Prescribed",
+                                                                         "MRI or CT Scan",
+                                                                         "Other Diagnostic Test/Exam",
+                                                                         "Sonogram or Ultrasound", 
+                                                                         "Surgery",
+                                                                         "Throat Swab",
+                                                                         "Vaccination",
+                                                                         "X-Rays"))),
                               mainPanel(
                                 h1(uiOutput(outputId = "max_expenditure")),
                                 uiOutput(outputId = "median_expenditure"),
                                 hr(),
-                                h2(p("Expenditures")),
                                 plotOutput(outputId = "expenditure_histogram")
+                                )
                               )
                               )
+                            )
                             )),
                  
                  tabPanel("High-Use Patients",
@@ -427,28 +486,66 @@ server <- function(input, output) {
   })
   
   
-#### EXPENDITURES PAGE ####  
+#### EXPENDITURES PAGE #### 
+  # Barplot that displays proportion each payer paid
+  output$payer_barplot <- renderPlot({
+    payers_data <- switch(input$condition_exp,
+                                "All" = expenditure_data,
+                                "Asthma" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Anxiety disorder" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Calculus of urinary tract" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Chronic obstructive pulmonary disease and bronchiectasis" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Essential hypertension" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Fracture of upper limb" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Headache; including migraine" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Intestinal infection" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Joint disorders and dislocations; trauma-related" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Open wounds of extremities" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Other connective tissue disease" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Other injuries and conditions due to external causes" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Other upper respiratory disease" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Other upper respiratory infections" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Spondylosis; intervertebral disc disorders; other back problems" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                                "Urinary tract infections" = expenditure_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp))
+    
+    payers_data %>% 
+      filter(!payment_type %in% c("Total Facility Payment", "Total Doctor Payment"),
+             rank > 330, `Total Expenditure` > 0, `Total Expenditure` < 1000) %>% 
+      mutate(fct_payment_type = case_when(payment_type == "Out of Pocket" ~ 1,
+                                          payment_type == "Medicaid" ~ 2,
+                                          payment_type == "Medicare" ~ 3,
+                                          payment_type == "Private Insurance" ~ 4,
+                                          payment_type == "Other Insurance" ~ 5)) %>% 
+      ggplot(aes(x = rank, y = amount, fill = fct_reorder(payment_type, -fct_payment_type))) +
+      geom_col() +
+      scale_fill_manual(name = "Payer", 
+                        values = c("Out of Pocket" = "#F27D53", "Medicaid" = "#61B200", 
+                                   "Medicare" = "#00B0F0", "Private Insurance" = "#B186FF", 
+                                   "Other Insurance" = "#FF62BC"))
+  })
+  
   # Text that displays maximum expenditure for selected condition and services
   output$max_expenditure <- renderText({
-    expenditures_data <- switch(input$condition_exp,
+    expenditures_data <- switch(input$condition_exp2,
                                 "All" = app_data,
-                                "Asthma" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Anxiety disorder" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Calculus of urinary tract" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Chronic obstructive pulmonary disease and bronchiectasis" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Essential hypertension" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Fracture of upper limb" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Headache; including migraine" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Intestinal infection" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Joint disorders and dislocations; trauma-related" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Open wounds of extremities" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Other connective tissue disease" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Other injuries and conditions due to external causes" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Other upper respiratory disease" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Other upper respiratory infections" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Spondylosis; intervertebral disc disorders; other back problems" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Urinary tract infections" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp))
+                                "Asthma" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Anxiety disorder" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Calculus of urinary tract" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Chronic obstructive pulmonary disease and bronchiectasis" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Essential hypertension" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Fracture of upper limb" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Headache; including migraine" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Intestinal infection" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Joint disorders and dislocations; trauma-related" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Open wounds of extremities" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Other connective tissue disease" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Other injuries and conditions due to external causes" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Other upper respiratory disease" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Other upper respiratory infections" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Spondylosis; intervertebral disc disorders; other back problems" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Urinary tract infections" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2))
     
     expenditures_data <- expenditures_data %>% 
       filter(service_received %in% input$service_exp) %>% 
@@ -462,25 +559,25 @@ server <- function(input, output) {
   
   # Text that displays the median expenditure for selected condition and services
   output$median_expenditure <- renderText({
-    expenditures_data <- switch(input$condition_exp,
+    expenditures_data <- switch(input$condition_exp2,
                                 "All" = app_data,
-                                "Asthma" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Anxiety disorder" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Calculus of urinary tract" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Chronic obstructive pulmonary disease and bronchiectasis" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Essential hypertension" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Fracture of upper limb" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Headache; including migraine" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Intestinal infection" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Joint disorders and dislocations; trauma-related" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Open wounds of extremities" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Other connective tissue disease" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Other injuries and conditions due to external causes" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Other upper respiratory disease" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Other upper respiratory infections" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Spondylosis; intervertebral disc disorders; other back problems" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
-                                "Urinary tract infections" = app_data %>% filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp))
+                                "Asthma" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Anxiety disorder" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Calculus of urinary tract" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Chronic obstructive pulmonary disease and bronchiectasis" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Essential hypertension" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Fracture of upper limb" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Headache; including migraine" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Intestinal infection" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Joint disorders and dislocations; trauma-related" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Open wounds of extremities" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Other connective tissue disease" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Other injuries and conditions due to external causes" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Other upper respiratory disease" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Other upper respiratory infections" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Spondylosis; intervertebral disc disorders; other back problems" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
+                                "Urinary tract infections" = app_data %>% filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2))
     
     expenditures_data <- expenditures_data %>% 
       filter(service_received %in% input$service_exp) %>% 
@@ -494,61 +591,61 @@ server <- function(input, output) {
   
   # Histogram that shows the distribution of expenditures for visits with the selected characteristics
   output$expenditure_histogram <- renderPlot({
-    expenditures_data <- switch(input$condition_exp,
+    expenditures_data <- switch(input$condition_exp2,
                             "All" = app_data,
                             "Asthma" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Anxiety disorder" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Calculus of urinary tract" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Chronic obstructive pulmonary disease and bronchiectasis" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Essential hypertension" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Fracture of upper limb" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Headache; including migraine" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Intestinal infection" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Joint disorders and dislocations; trauma-related" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Open wounds of extremities" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Other connective tissue disease" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Other injuries and conditions due to external causes" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Other upper respiratory disease" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Other upper respiratory infections" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Pneumonia (except that caused by tuberculosis or sexually transmitted disease)" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Spondylosis; intervertebral disc disorders; other back problems" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp),
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2),
                             "Urinary tract infections" = app_data %>% 
-                              filter(condition == input$condition_exp  | condition_2 == input$condition_exp | condition_3 == input$condition_exp | condition_4 == input$condition_exp))
+                              filter(condition == input$condition_exp2  | condition_2 == input$condition_exp2 | condition_3 == input$condition_exp2 | condition_4 == input$condition_exp2))
     
     expenditures_data %>% 
       filter(service_received %in% input$service_exp) %>% 
       mutate(`Total Expenditure` = `Total Expenditure` + 1) %>% 
-      ggplot(aes(x = `Total Expenditure`, fill = service_received)) +
-      geom_histogram() +
+      ggplot(aes(x = `Total Expenditure`, color = service_received)) +
+      geom_freqpoly() +
       scale_x_continuous(name = "Total Expenditure", 
                          breaks = c(100, 1000, 10000, 100000), 
                          labels = c("$100", "$1,000", "$10,000", "$100,000"), 
                          trans = "log10") +
       ylab("Number of Visits") +
-      scale_fill_manual(name = "Service", 
+      scale_color_manual(name = "Service", 
                         values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
                                  "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
                                  "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
                                  "Sonogram or Ultrasound" = "#8B93FF",
                                  "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
                                  "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
-      labs(title = "Distribution of Expenditures by Service", caption = "***Note: If a visit required multiple services, it is counted once for each service provided.")
+      labs(caption = "***Note: If a visit required multiple services, it is counted once for each service provided.")
   })
   
 }
