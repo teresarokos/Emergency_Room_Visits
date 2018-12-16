@@ -1,9 +1,0 @@
----
-title: "About Page"
-author: "Teresa Rokos"
-date: "12/14/2018"
-output: html_document
----
-
-# What does this app let you do?
-This app lets you explore what sort of services are provided by emergency rooms, what kinds of expenditures emergency visits tend to require, and what types of conditions, services, and expenditures are associated with high-use patients."

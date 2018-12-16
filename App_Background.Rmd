@@ -6,6 +6,9 @@ output: html_document
 ---
 
 ```{r}
+
+# Loading the appropriate packages
+
 library(tidyverse)
 library(readstata13)
 library(knitr)
@@ -13,25 +16,75 @@ library(janitor)
 library(dplyr)
 library(scales)
 
-emergency_visits_data <- read_rds("app_data")
+```
 
-glimpse(emergency_visits_data)
+```{r}
+
+# MEPS had instructions on how to import their data (which only existed in .dat and .ssp files) into STATA, so I used their provided code in a .do file and generated a .dta file of the data titled "H188E.dta" that I moved into my project and can now read into R.
+
+emergency_visits_data <- read.dta13("H188E.dta", nonint.factors = TRUE)
+
+
+# Loading the data and cleaning up variable names.
+
+names(emergency_visits_data) <- c("DWELLING UNIT ID", "PERSON NUMBER", "PERSON ID (DUID + PID)", "EVENT ID", "EVENT ROUND NUMBER",
+                                  "EVENT ID FOR CORRESPONDING HOSPITAL STAY", "FLAT FEE ID", "PANEL NUMBER", "MPC DATA FLAG",
+                                  "EVENT DATE - YEAR", "EVENT DATE - MONTH", "BEST CATEGORY FOR CARE P RECV ON VST DT", 
+                                  "THIS VST RELATED TO SPEC CONDITION", "THIS VISIT DID P HAVE LAB TESTS", 
+                                  "THIS VISIT DID P HAVE SONOGRAM OR ULTRSD", "THIS VISIT DID P HAVE X-RAYS", 
+                                  "THIS VISIT DID P HAVE A MAMMOGRAM", "THIS VISIT DID P HAVE AN MRI/CATSCAN",
+                                  "THIS VISIT DID P HAVE AN EKG OR ECG", "THIS VISIT DID P HAVE AN EEG", 
+                                  "THIS VISIT DID P RECEIVE A VACCINATION", "THIS VISIT DID P RECEIVE ANESTHESIA", 
+                                  "THIS VISIT DID P HAVE A THROAT SWAB", "THIS VISIT DID P HAVE OTH DIAG TEST/EXAM", 
+                                  "WAS SURG PROC PERFORMED ON P THIS VISIT", "ANY MEDICINE PRESCRIBED FOR P THIS VISIT", 
+                                  "MODIFIED CLINICAL CLASSIFICATION CODE", "MODIFIED CLINICAL CLASSIFICATION CODE", 
+                                  "MODIFIED CLINICAL CLASSIFICATION CODE", "MODIFIED CLINICAL CLASSIFICATION CODE", 
+                                  "FLAT FEE BUNDLE", "TOTAL # OF VISITS IN FF BEFORE 2016", 
+                                  "TOT EXP FOR EVENT (ERFXP16X + ERDXP16X)", "TOTAL CHG FOR EVENT (ERFTC16X+ERDTC16X)",
+                                  "FACILITY AMT PD, FAMILY (IMPUTED)", "FACILITY AMT PD, MEDICARE (IMPUTED)", 
+                                  "FACILITY AMT PD, MEDICAID (IMPUTED)", "FACILITY AMT PD, PRIV INSUR (IMPUTED)",
+                                  "FAC AMT PD,VETERANS/CHAMPVA(IMPUTED)", "FACILITY AMT PD,TRICARE(IMPUTED)", 
+                                  "FACILITY AMT PD, OTH FEDERAL (IMPUTED)", "FACILITY AMT PD, STATE/LOC GOV (IMPUTED)", 
+                                  "FACILITY AMT PD, WORKERS COMP (IMPUTED)", "FACILITY AMT PD, OTH PRIV (IMPUTED)", 
+                                  "FACILITY AMT PD, OTH PUB (IMPUTED)", "FACILITY AMT PD, OTH INSUR (IMPUTED)", 
+                                  "FACILITY SUM PAYMENTS ERFSF16X-ERFOT16X", "TOTAL FACILITY CHARGE (IMPUTED)",
+                                  "DOCTOR AMOUNT PAID, FAMILY (IMPUTED)", "DOCTOR AMOUNT PD, MEDICARE (IMPUTED)",
+                                  "DOCTOR AMOUNT PAID, MEDICAID (IMPUTED)", "DOCTOR AMT PD, PRIV INSUR (IMPUTED)",
+                                  "DR AMT PD,VETERANS/CHAMPVA(IMPUTED)", "DOCTOR AMT PD,TRICARE(IMPUTED)",
+                                  "DOCTOR AMT PAID, OTH FEDERAL (IMPUTED)", "DOCTOR AMT PD, STATE/LOC GOV (IMPUTED)",
+                                  "DOCTOR AMOUNT PD, WORKERS COMP (IMPUTED)", "DOCTOR AMT PD, OTH PRIVATE (IMPUTED)",
+                                  "DOCTOR AMT PD, OTH PUB (IMPUTED)", "DOCTOR AMT PD, OTH INSUR (IMPUTED)",
+                                  "DOCTOR SUM PAYMENTS ERDSF16X - ERDOT16X", "TOTAL DOCTOR CHARGE (IMPUTED)",
+                                  "IMPUTATION STATUS", "EXPENDITURE FILE PERSON WEIGHT, 2016", "VARIANCE ESTIMATION STRATUM, 2016",
+                                  "VARIANCE ESTIMATION PSU, 2016")
+
+emergency_visits_data <- clean_names(emergency_visits_data, case = c("snake"))
+
+```
+
+
+```{r}
 
 # Extracted clinical classification codes and corresponding conditions off MEPS website
 # Copy and pasted text off of MEPS website into .txt file
 # Need to separate out relevant codes so creating a dataframe (1 column) from the text file
+
 classification_codes <- read_delim("classification_codes", delim = "\t ", col_names = FALSE)
+
 
 # Filtering for rows that contain both numbers and words because those are the code/condition combos
 # Separating these rows into two columns, one containing the numerical code and the other containing the condition
 # In the original emergency_visits_data, there are leading zeros in the classification codes, so converting the numberical codes in both dataframes to integers so that they match (also column name for numerical codes match)
+
 classification_codes <- classification_codes %>% 
   filter(str_detect(X1, "[abcdefghijklmnopqrstuvwxyz]"), !str_detect(X1, "Return to Top")) %>% 
   separate(X1, into = c("modified_clinical_classification_code", "condition"), sep = " ", extra = "merge") %>% 
   mutate(modified_clinical_classification_code = parse_integer(modified_clinical_classification_code),
          condition = as_factor(condition))
 
+
 # Need to generate code/condition pairs for all modified_clinical_classification_code columns
+
 classification_codes_2 <- classification_codes %>% 
   mutate(modified_clinical_classification_code_2 = modified_clinical_classification_code,
          condition_2 = condition) %>% 
@@ -47,7 +100,9 @@ classification_codes_4 <- classification_codes %>%
          condition_4 = condition) %>% 
   select(modified_clinical_classification_code_4, condition_4)
 
+
 # Joining classification codes to emergency visits data
+
 emergency_visits_data <- emergency_visits_data %>% 
   mutate(modified_clinical_classification_code = parse_integer(modified_clinical_classification_code),
          modified_clinical_classification_code_2 = parse_integer(modified_clinical_classification_code_2),
@@ -58,8 +113,14 @@ emergency_visits_data <- emergency_visits_data %>%
   left_join(classification_codes_3, by = "modified_clinical_classification_code_3") %>%
   left_join(classification_codes_4, by = "modified_clinical_classification_code_4")
 
-# Cleaning up some of the variable names surrounding services so that easier to use in app 
+
+
+# Formatting the data so that it is easier to use in the app (a long format).
+
 emergency_visits_data <- emergency_visits_data %>% 
+  
+  # First renaming some of the variable names so that they are more user-friendly when gathered.
+  
   rename(`Category of Care` = best_category_for_care_p_recv_on_vst_dt, 
             `Specific Condition` = this_vst_related_to_spec_condition,
             `Lab Tests` = this_visit_did_p_have_lab_tests,
@@ -76,10 +137,10 @@ emergency_visits_data <- emergency_visits_data %>%
             Surgery =  was_surg_proc_performed_on_p_this_visit,
             `Medicine Prescribed` = any_medicine_prescribed_for_p_this_visit,
             `Total Expenditure` = tot_exp_for_event_erfxp16x_erdxp16x,
-            `Total Charge` = total_chg_for_event_erftc16x_erdtc16x)
+            `Total Charge` = total_chg_for_event_erftc16x_erdtc16x) %>% 
 
-# Converting service variables to logicals and gathering into a "services" column that includes each service that was provided during a visit. Also adding a column for the number of services provided at each visit
-emergency_visits_data <- emergency_visits_data %>% 
+  # Converting service variables to logicals and gathering into a "services" column (each row is a service/event pair).
+
   mutate(`Lab Tests` = case_when(`Lab Tests` == "1 YES" ~ TRUE),
          `Lab Tests` = parse_logical(`Lab Tests`),
          `Sonogram or Ultrasound` = case_when(`Sonogram or Ultrasound` == "1 YES" ~ TRUE),
@@ -110,78 +171,28 @@ emergency_visits_data <- emergency_visits_data %>%
          `MRI or CT Scan`, `EKG or ECG`, EEG, Vaccination, Anesthesia, `Throat Swab`, 
          `Other Diagnostic Test/Exam`, Surgery, `Medicine Prescribed`, key = "service_received", 
          value = "yes", na.rm = TRUE) %>% 
+  
+  # Adding a column for the number of services the event required.
+  
   group_by(event_id) %>% 
   mutate(n_services_visit = n()) %>% 
   ungroup() %>% 
-  select(-person_number, -flat_fee_id, -mpc_data_flag, -flat_fee_bundle, 
-         -total_number_of_visits_in_ff_before_2016, -panel_number, -event_round_number,
-         -imputation_status,-variance_estimation_stratum_2016, -variance_estimation_psu_2016)
-
-# Writing this file to my app folder
-emergency_visits_data %>% 
-  write_rds("App/app_data")
-```
-
-```{r services}
-# Background work for SERVICES PAGE
-# code to display total number of visits in the selected data
-emergency_visits_data %>% 
-  count(event_id) %>% 
-  nrow()
-
-# barplot providing the number of times each service was provided. In app, will be able to filter by condition.
-emergency_visits_data %>% 
-  filter(condition == "Asthma") %>% 
-  count(service_received) %>% 
-  ggplot(aes(x = fct_reorder(service_received, n), y = n, fill = service_received)) +
-  geom_col(show.legend = FALSE) +
-  coord_flip() +
-  scale_x_discrete(name = "") +
-  ylab("Number of visits that provided service") +
-  ggtitle("Most Popular Emergency Room Services") +
-  scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
-                                "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
-                                "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
-                                "Sonogram or Ultrasound" = "#8B93FF",
-                                "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
-                                "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD"))
-
-# Fun polar coordinate chart of most commmon services provided in conjunction with selected service
-with_service <- emergency_visits_data %>% 
-  filter(service_received == "Lab Tests") %>% 
-  select(event_id)
-
-emergency_visits_data %>% 
-  semi_join(with_service, by = "event_id") %>%
-  mutate(conj_service = case_when(n_services_visit != 1 ~ service_received,
-                                  n_services_visit == 1 ~ "No other services")) %>%
-  filter(conj_service != "Lab Tests") %>% 
-  ggplot(aes(x = conj_service, fill = conj_service)) +
-  geom_bar(show.legend = FALSE, width = 1) +
-  scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
-                                "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
-                                "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
-                                "Sonogram or Ultrasound" = "#8B93FF",
-                                "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
-                                "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD", 
-                               "No other services" = "grey")) +
-  coord_polar() + 
-  guides(fill = guide_legend("Additional Service")) +
-  scale_x_discrete(labels = c("", "", "", "","", "", "", "", "", "", "", "", "")) + 
-  theme(plot.background = element_rect(fill = "salmon"),
-        plot.margin = unit(c(2, 2, 1, 1), "cm"))
-```
-
-```{r expenditures}
-emergency_visits_data %>% 
-  count(doctor_amt_paid_oth_federal_imputed)
-
-glimpse(emergency_visits_data)
-
-# Creating a bar plot that shows for each expenditure, the proportion that was paid out of pocket, by medicare, medicaid, private insurance, etc.
-# First reformatting data so that this will be easier to manipulate in app (creating column that will have the type of payment and another column that has the amount so that they can be plotted on the same barplot)
-payments_charges <- emergency_visits_data %>% 
-  group_by(event_id, condition, condition_2, condition_3, condition_4) %>% 
+  
+  # Dropping some undesired variables
+  
+  select(-person_number, -flat_fee_id, -mpc_data_flag, -flat_fee_bundle, -total_number_of_visits_in_ff_before_2016, 
+         -panel_number, -event_round_number, -imputation_status,-variance_estimation_stratum_2016, 
+         -variance_estimation_psu_2016) %>% 
+  
+  # Adding a column for the number of times each individual visited the emergency rooom in 2016.
+  
+  group_by(person_id_duid_pid) %>% 
+  mutate(n_visits_2016 = n_distinct(event_id)) %>% 
+  ungroup() %>% 
+  
+  # Condensing payment-related variables into fewer columns (each payment still specific to each visit)
+  
+  group_by(event_id, condition, condition_2, condition_3, condition_4, service_received, n_services_visit, n_visits_2016) %>% 
   summarize(`Total Expenditure` = mean(`Total Expenditure`),
             `Total Charge` = mean(`Total Charge`),
             `Out of Pocket` = mean(facility_amt_pd_family_imputed) + mean(doctor_amount_paid_family_imputed),
@@ -200,74 +211,36 @@ payments_charges <- emergency_visits_data %>%
             `Total Facility Charge` = mean(total_facility_charge_imputed),
             `Total Doctor Payment` = mean(doctor_sum_payments_erdsf16x_erdot16x),
             `Total Doctor Charge` = mean(total_doctor_charge_imputed)) %>% 
-  ungroup() %>% 
+  ungroup()
+
+
+# Writing this data to my app
+
+emergency_visits_data %>% 
+  write_rds("App/app_data")
+```
+
+
+```{r expenditures}
+
+# Creating a bar plot that shows for each expenditure, the proportion that was paid out of pocket, by medicare, medicaid, private insurance, etc.
+# First reformatting data so that this will be easier to manipulate in app (creating column that will have the type of payment and another column that has the amount so that they can be plotted on the same barplot)
+
+payments_charges <- emergency_visits_data %>% 
   arrange(`Total Expenditure`) %>% 
   mutate(event_id = as_factor(event_id)) %>%
   gather(-event_id, -condition, -`Total Expenditure`, -`Total Charge`, -`Total Facility Charge`, -`Total Doctor Charge`,
-         -condition_2, -condition_3, -condition_4, key = payment_type, value = amount) %>%
+         -condition_2, -condition_3, -condition_4, -service_received, -n_services_visit, -n_visits_2016, 
+         key = payment_type, value = amount) %>%
   arrange(event_id) %>% 
-  filter(amount != 0)
+  filter(amount != 0) %>% 
+  group_by(event_id, condition, condition_2, condition_3, condition_4, n_services_visit, n_visits_2016, payment_type) %>% 
+  summarize(`Total Expenditure` = mean(`Total Expenditure`),
+            `Total Charge` = mean(`Total Charge`),
+            `Total Facility Charge` = mean(`Total Facility Charge`),
+            `Total Doctor Charge` = mean(`Total Doctor Charge`),
+            amount = mean(amount))
 
 payments_charges %>% 
   write_rds("App/expenditure_data")
-
-payments_charges %>% 
-  filter(!payment_type %in% c("Total Facility Payment", "Total Doctor Payment"),
-         `Total Expenditure` > 0, `Total Expenditure` < 1100000 , condition == "Other injuries and conditions due to external causes") %>%
-  count(event_id)
-  mutate(fct_payment_type = case_when(payment_type == "Out of Pocket" ~ 1,
-                                      payment_type == "Medicaid" ~ 2,
-                                      payment_type == "Medicare" ~ 3,
-                                      payment_type == "Private Insurance" ~ 4,
-                                      payment_type == "Other Insurance" ~ 5)) %>%
-  ggplot(aes(x = event_id, y = amount, fill = fct_reorder(payment_type, -fct_payment_type))) +
-  geom_col(width = 1) +
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank()) +
-  scale_fill_manual(name = "Payer",
-                    values = c("Out of Pocket" = "#F27D53", "Medicaid" = "#61B200", 
-                                "Medicare" = "#00B0F0", "Private Insurance" = "#B186FF", 
-                                "Other Insurance" = "#FF62BC")) +
-      scale_y_continuous(labels = dollar)
-  
-
-emergency_visits_data %>% 
-  mutate(`Total Expenditure` = `Total Expenditure` + 1) %>% 
-  ggplot(aes(x = `Total Expenditure`, fill = service_received)) +
-  geom_histogram(position = "dodge") +
-  scale_x_continuous(name = "Total Expenditure", 
-                     breaks = c(100, 1000, 10000, 100000), 
-                     labels = c("$100", "$1,000", "$10,000", "$100,000"), 
-                     trans = "log10") +
-  ylab("Number of Visits") +
-  scale_fill_manual(values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
-                                "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
-                                "EKG or ECG" = "#E18A00", "Other Diagnostic Test/Exam" = "#00BE70", 
-                                "Sonogram or Ultrasound" = "#8B93FF",
-                                "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
-                                "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD"))
-
-payments_charges %>% 
-  filter(payment_type %in% c("Total Facility Payment", "Total Doctor Payment")) %>% 
-            group_by(payment_type) %>% 
-            summarize(median = median(amount), maximum = max(amount))
 ```
-
-```{r patients page}
-
-
-person_visits <- emergency_visits_data %>% 
-  count(person_id_duid_pid, event_id) %>% 
-  arrange(desc(n)) %>% 
-  count(person_id_duid_pid) %>% 
-  arrange(desc(nn))
-
-emergency_visits_data %>% 
-  left_join(person_visits, by = "person_id_duid_pid") %>% 
-  select(person_id_duid_pid, event_id, condition, condition_2, condition_3, condition_4, service_received, nn) %>% 
-  arrange(desc(nn), event_id) %>% 
-  count(nn)
-```  
-
-

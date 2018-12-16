@@ -1,11 +1,7 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+# Exploring MEPS Emergency Room Visits Data (2016)
+
+
+# Loading the necessary packages
 
 library(shiny)
 library(tidyverse)
@@ -13,12 +9,18 @@ library(ggplot2)
 library(plotly)
 library(scales)
 
-# Loading emergency visits data created in the App_Background file
+
+# Loading emergency visits data and expenditure data created in the App_Background file
+
 app_data <- read_rds("app_data")
 expenditure_data <- read_rds("expenditure_data")
 
-# Define UI for application that draws a histogram
+
+################################################################ UI ###############################################################
+
 ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
+                 
+                 ##################### ABOUT PAGE #####################
                  
                  tabPanel("About",
                           fluidPage(
@@ -29,6 +31,9 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                 )
                             )
                           ),
+                 
+                 
+                 ##################### SERVICES PAGE #####################
                  
                  tabPanel("Services",
                           fluidPage(
@@ -142,13 +147,18 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                          h4(uiOutput(outputId = "selected_service")),
                                          uiOutput(outputId = "service_all_conditions"),
                                          uiOutput(outputId = "related_to_condition"),
+                                         hr(),
                                          plotOutput(outputId = "conj_service_plot")
                                          )
-                                       )
+                                       ),
+                                     br()
                                      )
                             )
                             )
                           ),
+                 
+                 
+                 ##################### EXPENDITURES PAGE #####################
                  
                  tabPanel("Expenditures",
                           fluidPage(
@@ -288,7 +298,8 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                 hr(),
                                 plotOutput(outputId = "expenditure_histogram")
                                 )
-                              )
+                              ),
+                              hr()
                               )
                             ),
                             
@@ -322,7 +333,7 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                                                  "Urinary tract infections")),
                                                        br(),
                                                        sliderInput("exp_range2",
-                                                                   "Select an expenditure range:",
+                                                                   "Select an overall expenditure range:",
                                                                    min = 0.01,
                                                                    max = 110000,
                                                                    pre = "$",
@@ -334,53 +345,104 @@ ui <- navbarPage("Exploring MEPS Emergency Room Visits Data",
                                        mainPanel(
                                          plotOutput(outputId = "dr_facility_barplot")
                                        )
-                                     )
+                                     ),
+                                     br()
                                      )
                             )
                             )),
                  
+                 
+                 ##################### HIGH-USE PATIENTS PAGE #####################
+                 
                  tabPanel("High-Use Patients",
                           fluidPage(
                             titlePanel("Emergency Room High-Use Patients"),
-                            sidebarLayout(
-                              sidebarPanel(
-                                checkboxGroupInput("care_category2", 
-                                                   "Select categories of care:",
-                                                   choices = c("Diagnosis or treatment" = "1 DIAGNOSIS OR TREATMENT",
-                                                               "Emergency (e.g. accident or injury)" = "2 EMERGENCY (E.G., ACCIDENT OR INJURY)",
-                                                               "Phychotherapy/mental health counseling" = "3 PSYCHOTHERAPY/MENTAL HEALTH COUNSELING",
-                                                               "Follow-up or post-operative visit" = "4 FOLLOW-UP OR POST-OPERATIVE VISIT",
-                                                               "Immunizations or shots" = "5 IMMUNIZATIONS OR SHOTS",
-                                                               "Pregnancy-related" = "6 PREGNANCY-RELATED (INC PRENATAL/ DELV)",
-                                                               "Other" = "91 OTHER",
-                                                               "Not ascertained" = "-9 NOT ASCERTAINED"),
-                                                   selected = "2 EMERGENCY (E.G., ACCIDENT OR INJURY)"),
-                                
-                                selectInput("condition", 
-                                            "Select a condition:",
-                                            choices = c("All",
-                                                        "Other injuries and conditions due to external causes", 
-                                                        "Spondylosis; intervertebral disc disorders; other back problems",
-                                                        "Essential hypertension",
-                                                        "Other upper respiratory infections",
-                                                        "Other upper respiratory disease",
-                                                        "Asthma",
-                                                        "Intestinal infection",
-                                                        "Joint disorders and dislocations; trauma-related",
-                                                        "Chronic obstructive pulmonary disease and bronchiectasis",
-                                                        "Anxiety disorder"))
+                            fluidRow(
+                              column(12,
+                                     br(),
+                                     p("MEPS denotes each individual with a unique code so that individuals who visited the 
+                                       emergency room multiple times in 2016 can be linked across visits. This page allows you to
+                                       explore whether there are any obvious differences between high-use patients and one-time
+                                       patients in terms of costs and conditions."),
+                                     hr())
                               ),
-                              mainPanel(h1(uiOutput(outputId = "n_patients")),
-                                        uiOutput(outputId = "n_households"),
-                                        hr())
+                            
+                            fluidRow(
+                              column(12,
+                                     h2(p("Comparing costs for high-use and low-use patients")),
+                                     p("For visits that did require expenditures, do patients who go to the emergency room more 
+                                       frequently tend to require different expenditures?"),
+                                     br(),
+                                     sidebarLayout(
+                                       sidebarPanel(
+                                         helpText("Define the lower limit for high-use patients"),
+                                         numericInput("n_definition",
+                                                      "Number of visits in 2016:",
+                                                      min = 2,
+                                                      max = 13,
+                                                      value = 2),
+                                         br(),
+                                         radioButtons("payment_type",
+                                                      "Compare by payment type:",
+                                                      choices = c("Total Expenditure",
+                                                                  "Out of Pocket",
+                                                                  "Medicaid",
+                                                                  "Medicare",
+                                                                  "Private Insurance",
+                                                                  "Other Insurance"),
+                                                      selected = "Total Expenditure")
+                                       ),
+                                       mainPanel(
+                                         uiOutput(outputId = "high_low_med_exp"),
+                                         hr(),
+                                         plotOutput(outputId = "high_low_exp")
+                                       )
+                                     ),
+                                     hr()
+                                     )
+                            ),
+                            
+                            fluidRow(
+                              column(12,
+                                     h2(p("Comparing conditions of high-use and low-use patients")),
+                                     p("Are high-use patients more likely to have certain conditions compared to low-use 
+                                       patients?"),
+                                     br(),
+                                     sidebarLayout(
+                                       sidebarPanel(
+                                         numericInput("top_n",
+                                                      "Number of top conditions:",
+                                                      min = 1,
+                                                      max = 10,
+                                                      value = 5),
+                                         br(),
+                                         helpText("Define the lower limit for high-use patients"),
+                                         numericInput("n_definition2",
+                                                      "Number of visits in 2016:",
+                                                      min = 2,
+                                                      max = 13,
+                                                      value = 2),
+                                         br()
+                                       ),
+                                       mainPanel(
+                                         h3(uiOutput(outputId = "one_condition")),
+                                         h3(uiOutput(outputId = "multiple_conditions")),
+                                         plotOutput(outputId = "high_low_conditions")
+                                       )
+                                     ),
+                                     br()
+                                     )
                             )
+                            
                           ))
                  )
 
-# Define server logic required to create each page
+############################################################## SERVER #############################################################
+
 server <- function(input, output) {
   
-#### SERVICES PAGE ####
+##################### SERVICES PAGE #####################
+  
   # Text that shows the total number of visits that received any services
   output$n_visits <- renderText({
     n_visits_total <- app_data %>% 
@@ -550,7 +612,7 @@ server <- function(input, output) {
   })
   
   
-#### EXPENDITURES PAGE #### 
+##################### EXPENDITURES PAGE #####################
   ## Distribution of expenditures by payer
         # Text displaying the number of visits being viewed on the barplot
         output$payer_n_visits <- renderText({
@@ -739,7 +801,7 @@ server <- function(input, output) {
                                breaks = c(100, 1000, 10000, 100000), 
                                labels = c("$100", "$1,000", "$10,000", "$100,000"), 
                                trans = "log10") +
-            ylab("Number of Visits") +
+            ylab("Number of times service was provided") +
             scale_fill_manual(name = "Service", 
                               values = c("Lab Tests" = "#F8766D", "X-Rays" = "#24B700", 
                                        "Medicine Prescribed" = "#00ACFC", "MRI or CT Scan" = "#FF65AC", 
@@ -747,7 +809,7 @@ server <- function(input, output) {
                                        "Sonogram or Ultrasound" = "#8B93FF",
                                        "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
                                        "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD")) +
-            labs(caption = "***Note: If a visit required multiple services, it is counted once for each service provided.")
+            labs(caption = "***Note: Many expenditures included multiple services.")
         })
         
     ## Distribution of payments between doctors and facilities
@@ -826,7 +888,107 @@ server <- function(input, output) {
             scale_y_continuous(name = "Amount Paid", labels = dollar) +
             scale_x_discrete(name = "")
         })
-  
+        
+##################### HIGH-USE PATIENTS PAGE #####################
+  ## Comparing costs for high-use and low-use patients
+      # Text that shows median amount paid for high-use vs low-use patients
+        output$high_low_med_exp <- renderText({
+          text_data <- app_data %>% 
+            group_by(event_id, condition, condition_2, condition_3, condition_4, n_visits_2016) %>% 
+            summarize(`Total Expenditure` = mean(`Total Expenditure`),
+                      `Out of Pocket` = mean(`Out of Pocket`),
+                      `Medicaid` = mean(`Medicaid`),
+                      `Medicare` = mean(`Medicare`),
+                      `Private Insurance` = mean(`Private Insurance`),
+                      `Other Insurance` = mean(`Other Insurance`)) %>% 
+            ungroup() %>% 
+            gather(-event_id, -condition, -condition_2, -condition_3, -condition_4, -n_visits_2016,
+                   key = payment_type, value = `Amount Paid`) %>% 
+            filter(payment_type == input$payment_type, `Amount Paid` != 0) %>% 
+            mutate(`Amount Paid` = `Amount Paid` + 1,
+                   type = case_when(n_visits_2016 < input$n_definition ~ "Low-use",
+                                     n_visits_2016 >= input$n_definition ~ "High-use")) %>% 
+            group_by(type) %>% 
+            summarize(median = median(`Amount Paid`)) %>% 
+            ungroup()
+          
+          paste0("Median for high-use patients: $", comma(subset(text_data, type == "High-use")$median), br(),
+                 "Median for low-use patients: $", comma(subset(text_data, type == "Low-use")$median))
+        })
+        
+      # Histogram that shows distribution of payments for high-use vs low-use patients
+        output$high_low_exp <- renderPlot({
+          
+          plot_data <- app_data %>% 
+            group_by(event_id, condition, condition_2, condition_3, condition_4, n_visits_2016) %>% 
+            summarize(`Total Expenditure` = mean(`Total Expenditure`),
+                      `Out of Pocket` = mean(`Out of Pocket`),
+                      `Medicaid` = mean(`Medicaid`),
+                      `Medicare` = mean(`Medicare`),
+                      `Private Insurance` = mean(`Private Insurance`),
+                      `Other Insurance` = mean(`Other Insurance`)) %>% 
+            ungroup() %>% 
+            gather(-event_id, -condition, -condition_2, -condition_3, -condition_4, -n_visits_2016,
+                   key = payment_type, value = `Amount Paid`) %>% 
+            filter(payment_type == input$payment_type, `Amount Paid` != 0) %>% 
+            mutate(`Amount Paid` = `Amount Paid` + 1,
+                   type = case_when(n_visits_2016 < input$n_definition ~ "Low-use",
+                                     n_visits_2016 >= input$n_definition ~ "High-use"))
+            
+          
+          ggplot(plot_data, aes(x = `Amount Paid`)) + 
+            geom_histogram(data = subset(plot_data, type == "Low-use"), aes(fill = type), alpha = 0.2) +
+            geom_histogram(data = subset(plot_data, type == "High-use"), aes(fill = type), alpha = 0.2) +
+            scale_fill_manual(name = "Type", values = c("red", "blue"), labels = c("High-use","Low-use")) +
+            scale_x_continuous(name = "Amount Paid",
+                               breaks = c(100, 1000, 10000, 100000), 
+                               labels = c("$100", "$1,000", "$10,000", "$100,000"),
+                               trans = "log10") +
+            ylab("Number of Visits")
+        })
+        
+  ## Comparing conditions of high-use and low-use patients
+      # Title for bar plots if only one condition selected
+      output$one_condition <- renderText({
+        if (input$top_n == 1) {
+          paste("Top condition for high-use vs. low-use patients")
+        }
+      })
+      
+      # Title for bar plots if multiple conditions selected
+      output$multiple_conditions <- renderText({
+        if (input$top_n != 1) {
+          paste("Top", input$top_n,"conditions for high-use vs. low-use patients")
+        }
+      })
+        
+      # Bar plots that show top conditions for high-use and low use patients
+      output$high_low_conditions <- renderPlot({
+        
+        high_low_conditions <- app_data %>% 
+          mutate(type = case_when(n_visits_2016 < input$n_definition2 ~ "Low-use",
+                                  n_visits_2016 >= input$n_definition2 ~ "High-use")) %>% 
+          group_by(type) %>% 
+          count(event_id, condition, condition_2, condition_3, condition_4) %>% 
+          gather(-event_id, -n, -type, key = "condition_number", value = "conditions", na.rm = TRUE) %>% 
+          arrange(event_id) %>% 
+          select(type, event_id, conditions) %>% 
+          mutate(total_type_visits = n_distinct(event_id)) %>% 
+          count(conditions, total_type_visits) %>% 
+          mutate(condition_percent = n/total_type_visits) %>% 
+          arrange(type, desc(condition_percent)) %>% 
+          slice(1:input$top_n)
+        
+        ggplot(high_low_conditions, aes(x = fct_reorder(conditions, condition_percent), y = condition_percent, fill = type)) +
+          geom_col(alpha = 0.2, position = "dodge") +
+          scale_fill_manual(name = "Type", values = c("red", "blue"), labels = c("High-use","Low-use")) +
+          coord_flip() +
+          scale_x_discrete(name = "") +
+          scale_y_continuous(name = "Percent of visits with condition", labels = percent) +
+          facet_wrap(~type)
+        
+      })
+
 }
 
 # Run the application 
