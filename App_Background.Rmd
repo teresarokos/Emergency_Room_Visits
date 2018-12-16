@@ -202,29 +202,34 @@ payments_charges <- emergency_visits_data %>%
             `Total Doctor Charge` = mean(total_doctor_charge_imputed)) %>% 
   ungroup() %>% 
   arrange(`Total Expenditure`) %>% 
-  mutate(rank = 1:5851) %>% 
-  gather(-event_id, -condition, -`Total Expenditure`, -`Total Charge`, -`Total Facility Charge`, -`Total Doctor Charge`, -rank,
+  mutate(event_id = as_factor(event_id)) %>%
+  gather(-event_id, -condition, -`Total Expenditure`, -`Total Charge`, -`Total Facility Charge`, -`Total Doctor Charge`,
          -condition_2, -condition_3, -condition_4, key = payment_type, value = amount) %>%
-  filter(case_when(`Total Expenditure` != 0 ~ amount != 0) | 
-           case_when(`Total Expenditure` == 0 ~ payment_type %in% c("Total Facility Payment", "Total Doctor Payment"))) %>% 
-  arrange(rank)
+  arrange(event_id) %>% 
+  filter(amount != 0)
 
 payments_charges %>% 
   write_rds("App/expenditure_data")
 
 payments_charges %>% 
   filter(!payment_type %in% c("Total Facility Payment", "Total Doctor Payment"),
-         rank > 330, `Total Expenditure` > 0, `Total Expenditure` < 1000) %>% 
+         `Total Expenditure` > 0, `Total Expenditure` < 1100000 , condition == "Other injuries and conditions due to external causes") %>%
+  count(event_id)
   mutate(fct_payment_type = case_when(payment_type == "Out of Pocket" ~ 1,
                                       payment_type == "Medicaid" ~ 2,
                                       payment_type == "Medicare" ~ 3,
                                       payment_type == "Private Insurance" ~ 4,
-                                      payment_type == "Other Insurance" ~ 5)) %>% 
-  ggplot(aes(x = rank, y = amount, fill = fct_reorder(payment_type, -fct_payment_type))) +
-  geom_col() +
-  scale_fill_manual(values = c("Out of Pocket" = "#F27D53", "Medicaid" = "#61B200", 
+                                      payment_type == "Other Insurance" ~ 5)) %>%
+  ggplot(aes(x = event_id, y = amount, fill = fct_reorder(payment_type, -fct_payment_type))) +
+  geom_col(width = 1) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()) +
+  scale_fill_manual(name = "Payer",
+                    values = c("Out of Pocket" = "#F27D53", "Medicaid" = "#61B200", 
                                 "Medicare" = "#00B0F0", "Private Insurance" = "#B186FF", 
-                                "Other Insurance" = "#FF62BC"))
+                                "Other Insurance" = "#FF62BC")) +
+      scale_y_continuous(labels = dollar)
   
 
 emergency_visits_data %>% 
@@ -243,7 +248,10 @@ emergency_visits_data %>%
                                 "Surgery" = "#BE9C00", "Anesthesia" = "#00C1AB", "Throat Swab" = "#D575FE",
                                 "EEG" = "#8CAB00", "Vaccination" = "#00BBDA", "Mammogram" = "#F962DD"))
 
-show_col(hue_pal()(40))
+payments_charges %>% 
+  filter(payment_type %in% c("Total Facility Payment", "Total Doctor Payment")) %>% 
+            group_by(payment_type) %>% 
+            summarize(median = median(amount), maximum = max(amount))
 ```
 
 ```{r patients page}
