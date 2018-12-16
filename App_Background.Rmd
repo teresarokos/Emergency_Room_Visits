@@ -20,7 +20,7 @@ library(scales)
 
 ```{r}
 
-# MEPS had instructions on how to import their data (which only existed in .dat and .ssp files) into STATA, so I used their provided code in a .do file and generated a .dta file of the data titled "H188E.dta" that I moved into my project and can now read into R.
+# MEPS had instructions on how to import their data (which only existed in .dat and .ssp files) into STATA, so I used their provided code in the "h188e.do" file and generated the "H188E.dta" file of the data that I moved into my project and can now read into R.
 
 emergency_visits_data <- read.dta13("H188E.dta", nonint.factors = TRUE)
 
