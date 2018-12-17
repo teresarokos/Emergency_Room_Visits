@@ -1,4 +1,4 @@
-# EXPLORING THE MEPS EMERGENCY ROOM VISITS DATA
+# Exploring the 2016 MEPS Emergency Room Visits Data
 Teresa Rokos
 
 <br>
