@@ -8,7 +8,7 @@ This app lets you explore the 2016 Medical Expenditure Panel Survey (MEPS) 2016 
 
 * the **services** are provided by emergency rooms 
 * the **expenditures** emergency visits tend to require
-* the conditions, services, and expenditures associated with **high-use patients**
+* the conditions and expenditures associated with **high-use patients**
 
 <br>
 
