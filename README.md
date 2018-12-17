@@ -1,1 +1,18 @@
 # GOV1005-Final_Project
+
+<br>
+
+### What does this app let you do?
+This app lets you explore the 2016 Medical Expenditure Panel Survey (MEPS) 2016 Emergency Room Visits file and helps you learn about:
+
+* the **services** are provided by emergency rooms 
+* the **expenditures** emergency visits tend to require
+* the conditions, services, and expenditures associated with **high-use patients**
+
+<br>
+
+### What is the MEPS emergency room visits data?
+The Medical Expenditure Panel Survey (MEPS) is a set of large-scale surveys of families and individuals, their medical providers, and employers across the United States. The 2016 Emergency Room (ER) visits data include information on the health conditions requiring emergency room care, medical services provided, any surgical procedures performed, prescribed medicines, and the physicians and surgeons providing emergency room care for any visit the surveyed person made during 2016 to a hospital emergency room. ER expenditures in MEPS are defined as the sum of payments for care received for each emergency room visit, including out-of-pocket payments and payments made by private insurance, Medicaid, Medicare and other sources. Learn more at the [MEPS website](https://meps.ahrq.gov/mepsweb/), the [emergency visits page](https://meps.ahrq.gov/mepsweb/data_stats/MEPS_topics.jsp?topicid=23Z-1), and the [source data page](https://meps.ahrq.gov/mepsweb/data_stats/download_data_files_detail.jsp?cboPufNumber=HC-188E).
+
+<br>
+### Here's the link to the [app](https://teresarokos.shinyapps.io/emergency_visits/).
